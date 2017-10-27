@@ -10,7 +10,8 @@ int main(int argc, char *argv[])
   QCoreApplication a(argc, argv);
 
   Server server;
-  server.connectToHost("", 1);
+  if (!server.connectToHost("", 1))
+    return 0;
 
   return a.exec();
 }

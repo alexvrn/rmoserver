@@ -21,7 +21,7 @@ class Server : public QObject
     explicit Server(QObject *parent = nullptr);
     virtual ~Server();
 
-    void connectToHost(const QString& host, int port);
+    bool connectToHost(const QString& host, int port);
 
   private slots:
     void runtimer();

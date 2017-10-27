@@ -24,7 +24,7 @@ Server::Server(QObject *parent)
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
 
   connect(&m_timer, SIGNAL(timeout()), SLOT(runtimer()));
-  m_timer.start(2000);
+  m_timer.start(200);
 }
 
 
@@ -41,17 +41,20 @@ void Server::exitProgramm(int sig)
 }
 
 
-void Server::connectToHost(const QString& host, int port)
+bool Server::connectToHost(const QString& host, int port)
 {
-  if (m_localServer->isListening())
-    return;
-
-  if (m_localServer->listen("rmoserver1"))
+  if (m_localServer->listen("rmoserver"))
+  {
     qDebug() << tr("Локальный сервер запущен: rmoserver");
+  }
   else
-    qFatal(qPrintable(QString("Не удаётся запустить сервер: rmoserver %1").arg(m_localServer->errorString())));
+  {
+    qWarning(qPrintable(QString("Не удаётся запустить сервер: rmoserver %1").arg(m_localServer->errorString())));
+    return false;
+  }
 
   m_networkManager->connectToHost(host, port);
+  return true;
 }
 
 
