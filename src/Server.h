@@ -9,7 +9,9 @@ class QLocalSocket;
 class QNetworkAccessManager;
 
 // SYSTEM
+#if defined(Q_OS_LINUX)
 #include <csignal>
+#endif
 
 class Server : public QObject
 {
@@ -27,7 +29,8 @@ class Server : public QObject
     void disconnected();
 
   private:
-    void exitProgramm(int sig);
+    // Обработка сигналов от ОС Linux
+    static void exitProgramm(int sig);
 
     QNetworkAccessManager* m_networkManager;
     QLocalServer* m_localServer;

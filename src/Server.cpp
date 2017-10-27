@@ -8,17 +8,18 @@
 #include <QNetworkAccessManager>
 #include <QDebug>
 
-static Server* serverExit;
-
 Server::Server(QObject *parent)
   : QObject(parent)
   , m_networkManager(new QNetworkAccessManager(this))
   , m_localServer(new QLocalServer(this))
   , m_rmoSocket(nullptr)
 {
-  serverExit = this;
-  //signal(SIGINT, &Server::exitProgramm);
-  //signal(SIGTERM, &Server::exitProgramm);
+  // Обработка аварийного закрытия программы
+  // Иначе сервер остаётся открытым
+#if defined(Q_OS_LINUX)
+  signal(SIGINT, &Server::exitProgramm);
+  signal(SIGTERM, &Server::exitProgramm);
+#endif
 
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
 
@@ -29,7 +30,6 @@ Server::Server(QObject *parent)
 
 Server::~Server()
 {
-  m_localServer->close();
 }
 
 
@@ -46,7 +46,7 @@ void Server::connectToHost(const QString& host, int port)
   if (m_localServer->isListening())
     return;
 
-  if (m_localServer->listen("rmoserverrrrr"))
+  if (m_localServer->listen("rmoserver1"))
     qDebug() << tr("Локальный сервер запущен: rmoserver");
   else
     qFatal(qPrintable(QString("Не удаётся запустить сервер: rmoserver %1").arg(m_localServer->errorString())));
@@ -64,6 +64,7 @@ void Server::newConnection()
   }
 
   m_rmoSocket = m_localServer->nextPendingConnection();
+  Q_ASSERT(m_rmoSocket);
   connect(m_rmoSocket, SIGNAL(disconnected()), SLOT(disconnected()));
 
   qDebug() << tr("Подключение к клиенту РМО.");
