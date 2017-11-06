@@ -18,7 +18,7 @@ class Server : public QObject
   Q_OBJECT
 
   public:
-    explicit Server(QObject *parent = nullptr);
+    explicit Server(QList<QPair<QString, int> > pgasServers, QObject *parent = nullptr);
     virtual ~Server();
 
     bool connectToHost(const QString& host, int port);
@@ -32,7 +32,8 @@ class Server : public QObject
     // Обработка сигналов от ОС Linux
     static void exitProgramm(int sig);
 
-    QNetworkAccessManager* m_networkManager;
+    // Список подключений ПГАС
+    QList<QNetworkAccessManager*> m_networkManagers;
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;
 

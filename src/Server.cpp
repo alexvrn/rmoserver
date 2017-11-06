@@ -8,9 +8,8 @@
 #include <QNetworkAccessManager>
 #include <QDebug>
 
-Server::Server(QObject *parent)
+Server::Server(QList<QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
-  , m_networkManager(new QNetworkAccessManager(this))
   , m_localServer(new QLocalServer(this))
   , m_rmoSocket(nullptr)
 {
@@ -21,7 +20,17 @@ Server::Server(QObject *parent)
   signal(SIGTERM, &Server::exitProgramm);
 #endif
 
+  // Подключение клиента РМО
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
+
+  // Все IP для ПГАС находятся в конфиг файле
+  for (auto server : pgasServers)
+  {
+    auto network = new QNetworkAccessManager(this);
+    network->connectToHost(server.first);
+    m_networkManagers.append(network);
+    qDebug() << server;
+  }
 
   connect(&m_timer, SIGNAL(timeout()), SLOT(runtimer()));
   m_timer.start(200);
@@ -53,7 +62,7 @@ bool Server::connectToHost(const QString& host, int port)
     return false;
   }
 
-  m_networkManager->connectToHost(host, port);
+  //m_networkManager->connectToHost(host, port);
   return true;
 }
 
