@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   settings.endArray();
 
   Server server(pgasServers);
-  if (!server.connectToHost("", 1))
+  if (!server.connectToHost("rmoserver"))
     return 0;
 
   return app.exec();

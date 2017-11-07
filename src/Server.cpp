@@ -6,10 +6,13 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QDebug>
 
-Server::Server(QList<QPair<QString, int> > pgasServers, QObject *parent)
+Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
+  , m_pgasServers(pgasServers)
   , m_localServer(new QLocalServer(this))
   , m_rmoSocket(nullptr)
 {
@@ -24,12 +27,15 @@ Server::Server(QList<QPair<QString, int> > pgasServers, QObject *parent)
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
 
   // Все IP для ПГАС находятся в конфиг файле
-  for (auto server : pgasServers)
+  for (auto server : m_pgasServers)
   {
-    auto network = new QNetworkAccessManager(this);
-    network->connectToHost(server.first);
-    m_networkManagers.append(network);
-    qDebug() << server;
+    qDebug() << tr("настройка сервера") << server;
+
+    auto manager = new QNetworkAccessManager(this);
+    //network->connectToHost(server.first);
+    m_networkManagers.append(manager);
+
+    sendCommand(server.first, Reboot, POST, manager);
   }
 
   connect(&m_timer, SIGNAL(timeout()), SLOT(runtimer()));
@@ -50,9 +56,9 @@ void Server::exitProgramm(int sig)
 }
 
 
-bool Server::connectToHost(const QString& host, int port)
+bool Server::connectToHost(const QString& name)
 {
-  if (m_localServer->listen("rmoserver"))
+  if (m_localServer->listen(name))
   {
     qDebug() << tr("Локальный сервер запущен: rmoserver");
   }
@@ -62,7 +68,6 @@ bool Server::connectToHost(const QString& host, int port)
     return false;
   }
 
-  //m_networkManager->connectToHost(host, port);
   return true;
 }
 
@@ -81,6 +86,73 @@ void Server::newConnection()
 
   qDebug() << tr("Подключение к клиенту РМО.");
 }
+
+
+void Server::sendCommand(const QString& pgasHost, CommandType cmd,
+                     RequestType requestType, QNetworkAccessManager* manager)
+{
+  QUrl url(QString("%1%2").arg(pgasHost).arg(commantString(cmd)));
+  QNetworkRequest request(url);
+
+  QNetworkReply* reply;
+  switch (requestType)
+  {
+    case GET:
+      reply = manager->get(request);
+      break;
+    case POST:
+      reply = manager->post(request, QByteArray());
+      break;
+    default:
+      qWarning() << tr("Не выбран тип запроса");
+      return;
+  }
+  makeConnect(reply, cmd);
+}
+
+
+void Server::makeConnect(QNetworkReply* reply, CommandType cmd)
+{
+  switch (cmd)
+  {
+    case Reboot:
+      connect(reply, SIGNAL(finished()), SLOT(rebootFinished()));
+      break;
+    default:
+      qWarning() << tr("Неизвестная команда") << cmd;
+  }
+}
+
+
+QString Server::commantString(CommandType command) const
+{
+  switch (command)
+  {
+    case Reboot: return QString("/control/reboot");
+    case Resurface: return QString("/control/resurface");
+    case SelfTest: return QString("/control/self-test");
+    case FirmwareBurn: return QString("/firmware/burn");
+    default:
+      return QString();
+  }
+}
+
+
+void Server::rebootFinished()
+{
+  auto reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply->error() == QNetworkReply::NoError)
+  {
+    qDebug() << "ok";
+  }
+  else
+  {
+    qDebug() << "error:" << qPrintable(reply->errorString());
+  }
+
+  reply->deleteLater();
+}
+
 
 
 void Server::disconnected()
