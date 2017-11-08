@@ -5,8 +5,6 @@
 #include <QObject>
 #include <QTimer>
 #include <QMap>
-class QLocalServer;
-class QLocalSocket;
 class QNetworkAccessManager;
 class QNetworkReply;
 
@@ -39,13 +37,6 @@ class Server : public QObject
     explicit Server(QList<QPair<QString, int> > pgasServers, QObject *parent = nullptr);
     virtual ~Server();
 
-    bool connectToHost(const QString& name);
-
-  private slots:
-    void runtimer();
-    void newConnection();
-    void disconnected();
-
     // Отправка команды
     void sendCommand(const QString& pgasHost, CommandType cmd,
                      RequestType requestType, const QByteArray& data = QByteArray());
@@ -65,11 +56,6 @@ class Server : public QObject
 
     // Список подключений ПГАС
     QNetworkAccessManager* m_networkManager;
-    QLocalServer* m_localServer;
-    QLocalSocket* m_rmoSocket;
-
-    //! FAKE
-    QTimer m_timer;
 };
 
 #endif // SERVER_H

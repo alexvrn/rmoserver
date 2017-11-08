@@ -6,6 +6,7 @@
 
 // Local
 #include "Server.h"
+#include "LocalServer.h"
 
 int main(int argc, char *argv[])
 {
@@ -32,9 +33,11 @@ int main(int argc, char *argv[])
   }
   settings.endArray();
 
-  Server server(pgasServers);
-  if (!server.connectToHost("rmoserver"))
+  LocalServer localServer;
+  if (!localServer.connectToHost("rmoserver"))
     return 0;
+
+  Server server(pgasServers);
 
   return app.exec();
 }

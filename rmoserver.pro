@@ -10,7 +10,8 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    src/Server.cpp
+    src/Server.cpp \
+    src/LocalServer.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -26,4 +27,5 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH = src/
 
 HEADERS += \
-    src/Server.h
+    src/Server.h \
+    src/LocalServer.h
