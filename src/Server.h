@@ -24,7 +24,8 @@ class Server : public QObject
     Reboot,    // Перезагрузка программного обеспечения ПГАС/СКГП
     Resurface, // Отделение якорного устройства ПГАС/СКГП
     SelfTest,  // Проведение функционального контроля ПГАС и перезагрузка ПГАС/СКГП
-    FirmwareBurn // Запись образа, содержащего ПО ПГАС/СКГП, системные таблицы адресов и др., в программируемое ПЗУ ПГАС/СКГП
+    FirmwareBurn, // Запись образа, содержащего ПО ПГАС/СКГП, системные таблицы адресов и др., в программируемое ПЗУ ПГАС/СКГП
+    Rtc // Запрос системного времени ПГАС/СКГП
   };
 
   enum RequestType
@@ -46,13 +47,15 @@ class Server : public QObject
     void disconnected();
 
     // Отправка команды
-    void sendCommand(const QString& pgasHost, CommandType cmd, RequestType requestType, QNetworkAccessManager* manager);
+    void sendCommand(const QString& pgasHost, CommandType cmd,
+                     RequestType requestType, const QByteArray& data = QByteArray());
     // Строковое представление команды для запроса
     QString commantString(CommandType command) const;
     // Создание коннекта
-    void makeConnect(QNetworkReply* reply, CommandType cmd);
+    //void makeConnect(QNetworkReply* reply, CommandType cmd);
 
     void rebootFinished();
+    void rtcFinished();
 
   private:
     // Обработка сигналов от ОС Linux
@@ -61,7 +64,7 @@ class Server : public QObject
     QList< QPair<QString, int> > m_pgasServers;
 
     // Список подключений ПГАС
-    QList<QNetworkAccessManager*> m_networkManagers;
+    QNetworkAccessManager* m_networkManager;
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;
 

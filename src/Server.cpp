@@ -13,6 +13,7 @@
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
   , m_pgasServers(pgasServers)
+  , m_networkManager(new QNetworkAccessManager(this))
   , m_localServer(new QLocalServer(this))
   , m_rmoSocket(nullptr)
 {
@@ -30,12 +31,7 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   for (auto server : m_pgasServers)
   {
     qDebug() << tr("настройка сервера") << server;
-
-    auto manager = new QNetworkAccessManager(this);
-    //network->connectToHost(server.first);
-    m_networkManagers.append(manager);
-
-    sendCommand(server.first, Reboot, POST, manager);
+    sendCommand(server.first, Reboot, POST);
   }
 
   connect(&m_timer, SIGNAL(timeout()), SLOT(runtimer()));
@@ -89,39 +85,67 @@ void Server::newConnection()
 
 
 void Server::sendCommand(const QString& pgasHost, CommandType cmd,
-                     RequestType requestType, QNetworkAccessManager* manager)
+                     RequestType requestType, const QByteArray& data)
 {
   QUrl url(QString("%1%2").arg(pgasHost).arg(commantString(cmd)));
   QNetworkRequest request(url);
 
+  QEventLoop loop;
   QNetworkReply* reply;
   switch (requestType)
   {
     case GET:
-      reply = manager->get(request);
+      reply = m_networkManager->get(request);
       break;
     case POST:
-      reply = manager->post(request, QByteArray());
+      reply = m_networkManager->post(request, data);
       break;
     default:
       qWarning() << tr("Не выбран тип запроса");
       return;
   }
-  makeConnect(reply, cmd);
-}
+  QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+  loop.exec();
 
-
-void Server::makeConnect(QNetworkReply* reply, CommandType cmd)
-{
-  switch (cmd)
+  if (reply->error() == QNetworkReply::NoError)
   {
-    case Reboot:
-      connect(reply, SIGNAL(finished()), SLOT(rebootFinished()));
-      break;
-    default:
-      qWarning() << tr("Неизвестная команда") << cmd;
+    qDebug() << "ok";
+    switch (requestType)
+    {
+      case GET:
+      {
+        QByteArray resultData = reply->readAll();
+        qDebug() << resultData;
+        //
+        break;
+      }
+      default: {}
+    }
   }
+  else
+  {
+    qDebug() << "error:" << qPrintable(reply->errorString());
+  }
+
+  reply->deleteLater();
+  //makeConnect(reply, cmd);
 }
+
+
+//void Server::makeConnect(QNetworkReply* reply, CommandType cmd)
+//{
+//  switch (cmd)
+//  {
+//    case Reboot:
+//      connect(reply, SIGNAL(finished()), SLOT(rebootFinished()));
+//      break;
+//    case Rtc:
+//      connect(reply, SIGNAL(finished()), SLOT(rtcFinished()));
+//      break;
+//    default:
+//      qWarning() << tr("Неизвестная команда") << cmd;
+//  }
+//}
 
 
 QString Server::commantString(CommandType command) const
@@ -131,7 +155,8 @@ QString Server::commantString(CommandType command) const
     case Reboot: return QString("/control/reboot");
     case Resurface: return QString("/control/resurface");
     case SelfTest: return QString("/control/self-test");
-    case FirmwareBurn: return QString("/firmware/burn");
+    case FirmwareBurn: return QStringLiteral("/firmware/burn");
+    case Rtc: return QString("/rtc");
     default:
       return QString();
   }
@@ -153,6 +178,21 @@ void Server::rebootFinished()
   reply->deleteLater();
 }
 
+
+void Server::rtcFinished()
+{
+  auto reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply->error() == QNetworkReply::NoError)
+  {
+    qDebug() << "ok";
+  }
+  else
+  {
+    qDebug() << "error:" << qPrintable(reply->errorString());
+  }
+
+  reply->deleteLater();
+}
 
 
 void Server::disconnected()
