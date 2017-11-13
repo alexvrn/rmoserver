@@ -26,6 +26,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH = src/
 
+include(cbor-qt/cbor.pri)
+
 HEADERS += \
     src/Server.h \
     src/LocalServer.h

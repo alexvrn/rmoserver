@@ -1,0 +1,3 @@
+[submodule "cbor-qt"]
+	path = cbor-qt
+	url = https://github.com/anton-dutov/cbor-qt.git
