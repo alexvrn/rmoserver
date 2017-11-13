@@ -7,6 +7,8 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QDebug>
+#include <QtEndian>
+#include <QDataStream>
 
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
@@ -24,7 +26,16 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   for (auto server : m_pgasServers)
   {
     qDebug() << tr("настройка сервера") << server;
-    sendCommand(server.first, Reboot, POST);
+    //sendCommand(server.first, Reboot, POST);
+    qint32 dt = QDateTime::currentMSecsSinceEpoch() / 1000;
+    qDebug() << dt;
+    //QByteArray ba = QByteArray::fromRawData(reinterpret_cast<const char*>(dt), sizeof(quint64));
+    //qDebug()<< ba;
+    char bytes[sizeof(qint32)];
+    memcpy(bytes, &dt, sizeof(qint32));
+    QByteArray ba(bytes, sizeof(qint32));
+    sendCommand(server.first, Rtc, POST, ba);
+    sendCommand(server.first, Rtc, GET);
   }
 }
 
@@ -73,8 +84,15 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
       case GET:
       {
         QByteArray resultData = reply->readAll();
-        qDebug() << resultData;
+        QDataStream stream(&resultData,  QIODevice::ReadOnly);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        qint32 dt;
+        stream >> dt;
+        qDebug() << dt;
+        //qDebug() << qFromBigEndian<char*>(resultData.data());
         //
+
         break;
       }
       default: {}
