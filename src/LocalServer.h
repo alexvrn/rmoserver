@@ -3,7 +3,6 @@
 
 // Qt
 #include <QObject>
-#include <QTimer>
 class QLocalServer;
 class QLocalSocket;
 
@@ -14,12 +13,14 @@ class LocalServer : public QObject
   public:
     explicit LocalServer(QObject *parent = nullptr);
 
-    bool connectToHost(const QString& name);
+    bool listen(const QString& name);
 
   signals:
 
+  public slots:
+    void pgasData(const QByteArray& data);
+
   private slots:
-    void runtimer();
     void newConnection();
     void disconnected();
 
@@ -27,8 +28,7 @@ class LocalServer : public QObject
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;
 
-    //! FAKE
-    QTimer m_timer;
+    QString m_sourceDataPath;
 };
 
 #endif // LOCALSERVER_H

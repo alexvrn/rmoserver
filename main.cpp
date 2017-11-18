@@ -7,6 +7,7 @@
 // Local
 #include "Server.h"
 #include "LocalServer.h"
+#include "HTTPServer.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,9 +34,13 @@ int main(int argc, char *argv[])
   }
   settings.endArray();
 
+  HTTPServer httpServer;
+
   LocalServer localServer;
-  if (!localServer.connectToHost("rmoserver"))
+  if (!localServer.listen("rmoserver4"))
     return 0;
+
+  QObject::connect(&httpServer, &HTTPServer::pgasData, &localServer, &LocalServer::pgasData);
 
   Server server(pgasServers);
 

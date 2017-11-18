@@ -4,6 +4,10 @@
 // Qt
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QSettings>
+#include <QDate>
+#include <QFile>
+#include <QDir>
 
 LocalServer::LocalServer(QObject *parent)
   : QObject(parent)
@@ -13,12 +17,21 @@ LocalServer::LocalServer(QObject *parent)
   // Подключение клиента РМО
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
 
-  connect(&m_timer, SIGNAL(timeout()), SLOT(runtimer()));
-  m_timer.start(200);
+  QSettings settings("SAMI DVO RAN", "rmo");
+  m_sourceDataPath = settings.value("sourceDataPath",
+#if defined(Q_OS_LINUX)
+      "/tmp/rmoserver/"
+#else
+      "C:\tmp\rmoserver\"
+#endif
+      ).toString();
+
+  QDir dir;
+  dir.mkpath(m_sourceDataPath);
 }
 
 
-bool LocalServer::connectToHost(const QString& name)
+bool LocalServer::listen(const QString& name)
 {
   if (m_localServer->listen(name))
   {
@@ -56,10 +69,17 @@ void LocalServer::disconnected()
 }
 
 
-void LocalServer::runtimer()
+void LocalServer::pgasData(const QByteArray& data)
 {
   if (!m_rmoSocket)
     return;
 
-  m_rmoSocket->write("block");
+  m_rmoSocket->write(data);
+
+  // Сохраняем данные в файле
+  QString fileName = QString("%1%2%3").arg(m_sourceDataPath).arg(QDate::currentDate().toString("ddmmyyy")).arg(".dat");
+  QFile dat(fileName);
+  dat.open(QIODevice::Append);
+  dat.write(data);
+  dat.close();
 }
