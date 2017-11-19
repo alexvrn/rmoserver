@@ -20,14 +20,15 @@ LocalServer::LocalServer(QObject *parent)
   QSettings settings("SAMI DVO RAN", "rmo");
   m_sourceDataPath = settings.value("sourceDataPath",
 #if defined(Q_OS_LINUX)
-      "/tmp/rmoserver/"
+      "/tmp/rmoserver"
 #else
-      "C:\tmp\rmoserver\"
+      "C:\\tmp\\rmoserver"
 #endif
-      ).toString();
+  ).toString();
 
   QDir dir;
-  dir.mkpath(m_sourceDataPath);
+  if (!dir.mkpath(m_sourceDataPath))
+    qWarning() << tr("Не удалось создать каталог для хранения файлов") << m_sourceDataPath;
 }
 
 
@@ -71,15 +72,21 @@ void LocalServer::disconnected()
 
 void LocalServer::pgasData(const QByteArray& data)
 {
+  // Сохраняем данные в файле
+  QString fileName = QString("%1%2%3%4").arg(m_sourceDataPath).arg(QDir::separator()).arg(QDate::currentDate().toString("ddMMyyyy")).arg(".dat");
+  QFile dat(fileName);
+  if (dat.open(QIODevice::Append))
+  {
+    dat.write(data);
+    dat.close();
+  }
+  else
+  {
+    qWarning() << tr("Ошибка открытия файла") << fileName;
+  }
+
   if (!m_rmoSocket)
     return;
 
   m_rmoSocket->write(data);
-
-  // Сохраняем данные в файле
-  QString fileName = QString("%1%2%3").arg(m_sourceDataPath).arg(QDate::currentDate().toString("ddmmyyy")).arg(".dat");
-  QFile dat(fileName);
-  dat.open(QIODevice::Append);
-  dat.write(data);
-  dat.close();
 }

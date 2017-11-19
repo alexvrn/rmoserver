@@ -12,7 +12,7 @@
 #include <QFile>
 
 // CBOR
-#include <cbor.h>
+//#include <cbor.h>
 
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
@@ -42,25 +42,25 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
     sendCommand(server.first, Rtc, GET);
   }
 
-  QVariantMap map;
+//  QVariantMap map;
 
-  QVariantMap map1;
-  map1["int"] = 56;
+//  QVariantMap map1;
+//  map1["int"] = 56;
 
-  map["int"] = 42;
-  map["bar"] = 3.14;
-  map["baz"] = "Hello world";
-  map["map"] = map1;
+//  map["int"] = 42;
+//  map["bar"] = 3.14;
+//  map["baz"] = "Hello world";
+//  map["map"] = map1;
 
-  qDebug() << (CBOR::unpack(CBOR::pack(map)) == map);
+//  qDebug() << (CBOR::unpack(CBOR::pack(map)) == map);
 
-  QFile f("/home/alexey/project/rmoserver/data/pp_pss_000_000.dat");
-  qDebug() << f.open(QIODevice::ReadOnly);
-  QDataStream in(&f);    // read the data serialized from the file
-  int i;
-  in >> i;
-  qDebug() << i;
-  f.close();
+//  QFile f("/home/alexey/project/rmoserver/data/pp_pss_000_000.dat");
+//  qDebug() << f.open(QIODevice::ReadOnly);
+//  QDataStream in(&f);    // read the data serialized from the file
+//  int i;
+//  in >> i;
+//  qDebug() << i;
+//  f.close();
 }
 
 
