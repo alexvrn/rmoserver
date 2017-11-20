@@ -8,6 +8,7 @@
 #include <QDate>
 #include <QFile>
 #include <QDir>
+#include <QTimer>
 
 LocalServer::LocalServer(QObject *parent)
   : QObject(parent)
@@ -26,9 +27,13 @@ LocalServer::LocalServer(QObject *parent)
 #endif
   ).toString();
 
+  // Создаём папку для хранения файлов
   QDir dir;
   if (!dir.mkpath(m_sourceDataPath))
     qWarning() << tr("Не удалось создать каталог для хранения файлов") << m_sourceDataPath;
+
+  connect(&m_clearTimer, SIGNAL(timeout()), SLOT(clearTimer()));
+  m_clearTimer.start(1000 * 60 * 60); // Запускаем таймер каждый час
 }
 
 
@@ -40,7 +45,7 @@ bool LocalServer::listen(const QString& name)
   }
   else
   {
-    qWarning(qPrintable(QString("Не удаётся запустить сервер: rmoserver %1").arg(m_localServer->errorString())));
+    qWarning() << QString("Не удаётся запустить сервер: rmoserver %1").arg(m_localServer->errorString());
     return false;
   }
 
@@ -72,7 +77,7 @@ void LocalServer::disconnected()
 
 void LocalServer::pgasData(const QByteArray& data)
 {
-  // Сохраняем данные в файле
+  // Сохраняем данные в файле (название файла строится в соответствии с текущим днём ddMMyyyy)
   QString fileName = QString("%1%2%3%4").arg(m_sourceDataPath).arg(QDir::separator()).arg(QDate::currentDate().toString("ddMMyyyy")).arg(".dat");
   QFile dat(fileName);
   if (dat.open(QIODevice::Append))
@@ -85,8 +90,15 @@ void LocalServer::pgasData(const QByteArray& data)
     qWarning() << tr("Ошибка открытия файла") << fileName;
   }
 
+  // Посылаем данные клиенту GUI, если он подключен
   if (!m_rmoSocket)
     return;
 
   m_rmoSocket->write(data);
+}
+
+
+void LocalServer::clearTimer()
+{
+  //
 }

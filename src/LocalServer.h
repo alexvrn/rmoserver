@@ -5,6 +5,7 @@
 #include <QObject>
 class QLocalServer;
 class QLocalSocket;
+class QTimer;
 
 class LocalServer : public QObject
 {
@@ -24,11 +25,16 @@ class LocalServer : public QObject
     void newConnection();
     void disconnected();
 
+    void clearTimer();
+
   private:
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;
 
     QString m_sourceDataPath;
+
+    // Таймер для очистки старых данных, в зависимости от параметров, заданных в конфиге
+    QTimer m_clearTimer;
 };
 
 #endif // LOCALSERVER_H
