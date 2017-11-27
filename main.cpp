@@ -34,10 +34,14 @@ int main(int argc, char *argv[])
   }
   settings.endArray();
 
+  if (pgasServers.isEmpty())
+    pgasServers.append(qMakePair("127.0.0.1", 111));
+
+
   HTTPServer httpServer;
 
   LocalServer localServer;
-  if (!localServer.listen("rmoserver4"))
+  if (!localServer.listen("rmoserver"))
     return 0;
 
   QObject::connect(&httpServer, &HTTPServer::pgasData, &localServer, &LocalServer::pgasData);

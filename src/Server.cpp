@@ -12,7 +12,7 @@
 #include <QFile>
 
 // CBOR
-//#include <cbor.h>
+#include <cbor.h>
 
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
@@ -29,17 +29,56 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   // Все IP для ПГАС находятся в конфиг файле
   for (auto server : m_pgasServers)
   {
-    qDebug() << tr("настройка сервера") << server;
+    qDebug() << tr("Настройка сервера") << server;
     //sendCommand(server.first, Reboot, POST);
+
     qint32 dt = QDateTime::currentMSecsSinceEpoch() / 1000;
     qDebug() << dt;
     //QByteArray ba = QByteArray::fromRawData(reinterpret_cast<const char*>(dt), sizeof(quint64));
     //qDebug()<< ba;
-    char bytes[sizeof(qint32)];
-    memcpy(bytes, &dt, sizeof(qint32));
-    QByteArray ba(bytes, sizeof(qint32));
-    sendCommand(server.first, Rtc, POST, ba);
-    sendCommand(server.first, Rtc, GET);
+    //char bytes[sizeof(qint32)];
+    //memcpy(bytes, &dt, sizeof(qint32));
+    //QByteArray ba(bytes, sizeof(qint32));
+
+    QByteArray ba1;
+
+    ba1 += CBOR::pack(20.0);
+    ba1 += CBOR::pack(20.0);
+    ba1 += CBOR::pack(20.0);
+
+    for (int i = 0; i < 23; i++)
+    {
+      ba1 += CBOR::pack(20);
+      ba1 += CBOR::pack(2.4);
+    }
+    ba1 += CBOR::pack(2.0);
+
+//    QVariantList cmd_data31_t;
+//    cmd_data31_t << (float)20.0;
+//    cmd_data31_t << (float)20.0;
+//    cmd_data31_t << (float)20.0;
+
+//    QVariantList soundVelocity;
+//    for (int i = 0; i < 23; i++)
+//    {
+//      QVariantList cmd_data32_t;
+//      cmd_data32_t << 20;// unsigned  toHour;
+//      cmd_data32_t << (float)2.4;//    float  sv;
+//      soundVelocity.append(cmd_data32_t);
+//    }
+//    QVariantList cmd_data30_t;
+//    cmd_data30_t << cmd_data31_t;
+//    cmd_data30_t << soundVelocity;
+//    cmd_data30_t << (float)2.0;
+
+    auto bbb = CBOR::pack(ba1);
+//    QFile ff("E:\\work\\rmoserver\\cbor-qt\\unittest\\ff.dat");
+//    ff.open(QIODevice::WriteOnly);
+//    ff.write(bbb);
+//    ff.close();
+
+    sendCommand(server.first, Env, PUT, bbb);
+    sendCommand(server.first, Env, GET);
   }
 
 //  QVariantMap map;
@@ -93,6 +132,9 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
     case POST:
       reply = m_networkManager->post(request, data);
       break;
+    case PUT:
+      reply = m_networkManager->put(request, data);
+      break;
     default:
       qWarning() << tr("Не выбран тип запроса");
       return;
@@ -111,9 +153,9 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
         QDataStream stream(&resultData,  QIODevice::ReadOnly);
         stream.setByteOrder(QDataStream::LittleEndian);
 
-        qint32 dt;
-        stream >> dt;
-        qDebug() << dt;
+        //qint32 dt;
+        //stream >> dt;
+        qDebug() << resultData;
         //qDebug() << qFromBigEndian<char*>(resultData.data());
         //
 
@@ -157,6 +199,7 @@ QString Server::commantString(CommandType command) const
     case SelfTest: return QString("/control/self-test");
     case FirmwareBurn: return QStringLiteral("/firmware/burn");
     case Rtc: return QString("/rtc");
+    case Env: return QString("/env-params");
     default:
       return QString();
   }

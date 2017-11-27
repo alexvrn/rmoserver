@@ -8,7 +8,6 @@
 #include <QDate>
 #include <QFile>
 #include <QDir>
-#include <QTimer>
 
 LocalServer::LocalServer(QObject *parent)
   : QObject(parent)

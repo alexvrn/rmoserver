@@ -5,7 +5,7 @@
 #include <QObject>
 class QLocalServer;
 class QLocalSocket;
-class QTimer;
+#include <QTimer>
 
 class LocalServer : public QObject
 {
