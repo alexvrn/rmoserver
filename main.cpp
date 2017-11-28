@@ -35,9 +35,11 @@ int main(int argc, char *argv[])
   settings.endArray();
 
   HTTPServer httpServer;
+  if (!httpServer.listen(2020))
+    return 0;
 
   LocalServer localServer;
-  if (!localServer.listen("rmoserver"))
+  if (!localServer.listen(settings.value("rmoServerName", "rmoserver").toString()))
     return 0;
 
   QObject::connect(&httpServer, &HTTPServer::pgasData, &localServer, &LocalServer::pgasData);

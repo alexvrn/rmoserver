@@ -5,6 +5,11 @@
 #include <QObject>
 #include <QTimer>
 
+// Http server
+#include <qhttpserver.h>
+#include <qhttprequest.h>
+#include <qhttpresponse.h>
+
 class HTTPServer : public QObject
 {
   Q_OBJECT
@@ -16,13 +21,18 @@ class HTTPServer : public QObject
     void pgasData(const QByteArray& data);
 
   public slots:
+    bool listen(int port);
 
   private slots:
-    void timer();
+    void timer(); //! FAKE
+
+    void handle(QHttpRequest* request, QHttpResponse* response);
 
   private:
     //! FAKE
     QTimer m_timer;
+
+    QHttpServer* m_httpServer;
 };
 
 #endif // HTTPSERVER_H

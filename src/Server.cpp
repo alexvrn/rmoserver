@@ -14,6 +14,7 @@
 // CBOR
 #include <cbor.h>
 
+
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
   , m_pgasServers(pgasServers)
