@@ -34,10 +34,6 @@ int main(int argc, char *argv[])
   }
   settings.endArray();
 
-  if (pgasServers.isEmpty())
-    pgasServers.append(qMakePair("127.0.0.1", 111));
-
-
   HTTPServer httpServer;
 
   LocalServer localServer;
