@@ -63,6 +63,7 @@ void LocalServer::newConnection()
   m_rmoSocket = m_localServer->nextPendingConnection();
   Q_ASSERT(m_rmoSocket);
   connect(m_rmoSocket, SIGNAL(disconnected()), SLOT(disconnected()));
+  connect(m_rmoSocket, SIGNAL(readyRead()), SLOT(readyRead()));
 
   qDebug() << tr("Подключение к клиенту РМО.");
 }
@@ -71,6 +72,17 @@ void LocalServer::newConnection()
 void LocalServer::disconnected()
 {
   m_rmoSocket = nullptr;
+  qDebug() << tr("Отключение клиента РМО.");
+}
+
+
+void LocalServer::readyRead()
+{
+  // TDOD: не знаю, нужна ли тут эта проверка
+  if (!m_rmoSocket)
+    return;
+
+  m_rmoSocket->readAll();
 }
 
 

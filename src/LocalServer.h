@@ -24,6 +24,7 @@ class LocalServer : public QObject
   private slots:
     void newConnection();
     void disconnected();
+    void readyRead();
 
     void clearTimer();
 
