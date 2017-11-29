@@ -14,6 +14,9 @@
 // CBOR
 #include <cbor.h>
 
+// structs
+#include <cmd_data.h>
+#include <cmd_data_packer.c>
 
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
@@ -41,18 +44,18 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
     //memcpy(bytes, &dt, sizeof(qint32));
     //QByteArray ba(bytes, sizeof(qint32));
 
-    QByteArray ba1;
+//    QByteArray ba1;
 
-    ba1 += CBOR::pack(20.0);
-    ba1 += CBOR::pack(20.0);
-    ba1 += CBOR::pack(20.0);
+//    ba1 += CBOR::pack(20.0);
+//    ba1 += CBOR::pack(20.0);
+//    ba1 += CBOR::pack(20.0);
 
-    for (int i = 0; i < 23; i++)
-    {
-      ba1 += CBOR::pack(20);
-      ba1 += CBOR::pack(2.4);
-    }
-    ba1 += CBOR::pack(2.0);
+//    for (int i = 0; i < 23; i++)
+//    {
+//      ba1 += CBOR::pack(20);
+//      ba1 += CBOR::pack(2.4);
+//    }
+//    ba1 += CBOR::pack(2.0);
 
 //    QVariantList cmd_data31_t;
 //    cmd_data31_t << (float)20.0;
@@ -72,13 +75,29 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
 //    cmd_data30_t << soundVelocity;
 //    cmd_data30_t << (float)2.0;
 
-    auto bbb = CBOR::pack(ba1);
+    //auto bbb = CBOR::pack(ba1);
 //    QFile ff("E:\\work\\rmoserver\\cbor-qt\\unittest\\ff.dat");
 //    ff.open(QIODevice::WriteOnly);
 //    ff.write(bbb);
 //    ff.close();
 
-    sendCommand(server.first, Env, PUT, bbb);
+    cmd_data30_t cmd30;
+    cmd30.beta.b0 = 3.0;
+    cmd30.beta.b1 = 3.0;
+    cmd30.beta.b2 = 3.0;
+    for(int i=0; i<24;++i)
+    {
+      cmd30.soundVelocity[i].sv = 3;
+      cmd30.soundVelocity[i].toHour = 1;
+    }
+    cmd30.multipathTimeCoef = 20;
+
+    unsigned char stream_data[1024];
+    cbor_stream_t stream = {stream_data, sizeof(stream_data), 0};
+    cmd_data30_pack(&stream, &cmd30);
+    qDebug() << "size" << stream.size;
+
+    sendCommand(server.first, Env, PUT, QByteArray(reinterpret_cast<char*>(stream.data), stream.size));
     sendCommand(server.first, Env, GET);
   }
 
@@ -156,9 +175,12 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
 
         //qint32 dt;
         //stream >> dt;
-        qDebug() << resultData;
         //qDebug() << qFromBigEndian<char*>(resultData.data());
         //
+        if (cmd == Env)
+        {
+          qDebug() << resultData;
+        }
 
         break;
       }
