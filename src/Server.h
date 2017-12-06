@@ -24,7 +24,7 @@ class Server : public QObject
     SelfTest,  // Проведение функционального контроля ПГАС и перезагрузка ПГАС/СКГП
     FirmwareBurn, // Запись образа, содержащего ПО ПГАС/СКГП, системные таблицы адресов и др., в программируемое ПЗУ ПГАС/СКГП
     Rtc, // Запрос системного времени ПГАС/СКГП
-    Env
+    Env // Запрос гидрофизических параметров среды
   };
 
   enum RequestType
@@ -52,6 +52,9 @@ class Server : public QObject
   private:
     // Обработка сигналов от ОС Linux
     static void exitProgramm(int sig);
+
+    // Отправка настройки параметров http-сервера
+    void postSettingServer();
 
     QList< QPair<QString, int> > m_pgasServers;
 

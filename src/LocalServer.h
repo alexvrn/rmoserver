@@ -12,6 +12,14 @@ class LocalServer : public QObject
   Q_OBJECT
 
   public:
+    enum WaitState
+    {
+      WaitingId,
+      WaitingMessageType,
+      WaitingLength,
+      WaitingMessage
+    };
+
     explicit LocalServer(QObject *parent = nullptr);
 
     bool listen(const QString& name);
@@ -29,6 +37,8 @@ class LocalServer : public QObject
     void clearTimer();
 
   private:
+    void init();
+
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;
 
@@ -36,6 +46,10 @@ class LocalServer : public QObject
 
     // Таймер для очистки старых данных, в зависимости от параметров, заданных в конфиге
     QTimer m_clearTimer;
+
+    WaitState m_waitState;
+    quint16 m_messageType;
+    quint32 m_messageLength;
 };
 
 #endif // LOCALSERVER_H

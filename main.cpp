@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     return 0;
 
   LocalServer localServer;
-  if (!localServer.listen(settings.value("rmoServerName", "rmoserver").toString()))
+  if (!localServer.listen(settings.value("rmoServerName1", "rmoserver1217").toString()))
     return 0;
 
   QObject::connect(&httpServer, &HTTPServer::pgasData, &localServer, &LocalServer::pgasData);

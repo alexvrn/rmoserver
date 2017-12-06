@@ -18,6 +18,8 @@
 #include <cmd_data.h>
 #include <cmd_data_packer.c>
 
+const quint16 idMessage = 0xCAFE;
+
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
   : QObject(parent)
   , m_pgasServers(pgasServers)
@@ -37,49 +39,6 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
     //sendCommand(server.first, Reboot, POST);
 
     qint32 dt = QDateTime::currentMSecsSinceEpoch() / 1000;
-    qDebug() << dt;
-    //QByteArray ba = QByteArray::fromRawData(reinterpret_cast<const char*>(dt), sizeof(quint64));
-    //qDebug()<< ba;
-    //char bytes[sizeof(qint32)];
-    //memcpy(bytes, &dt, sizeof(qint32));
-    //QByteArray ba(bytes, sizeof(qint32));
-
-//    QByteArray ba1;
-
-//    ba1 += CBOR::pack(20.0);
-//    ba1 += CBOR::pack(20.0);
-//    ba1 += CBOR::pack(20.0);
-
-//    for (int i = 0; i < 23; i++)
-//    {
-//      ba1 += CBOR::pack(20);
-//      ba1 += CBOR::pack(2.4);
-//    }
-//    ba1 += CBOR::pack(2.0);
-
-//    QVariantList cmd_data31_t;
-//    cmd_data31_t << (float)20.0;
-//    cmd_data31_t << (float)20.0;
-//    cmd_data31_t << (float)20.0;
-
-//    QVariantList soundVelocity;
-//    for (int i = 0; i < 23; i++)
-//    {
-//      QVariantList cmd_data32_t;
-//      cmd_data32_t << 20;// unsigned  toHour;
-//      cmd_data32_t << (float)2.4;//    float  sv;
-//      soundVelocity.append(cmd_data32_t);
-//    }
-//    QVariantList cmd_data30_t;
-//    cmd_data30_t << cmd_data31_t;
-//    cmd_data30_t << soundVelocity;
-//    cmd_data30_t << (float)2.0;
-
-    //auto bbb = CBOR::pack(ba1);
-//    QFile ff("E:\\work\\rmoserver\\cbor-qt\\unittest\\ff.dat");
-//    ff.open(QIODevice::WriteOnly);
-//    ff.write(bbb);
-//    ff.close();
 
     cmd_data30_t cmd30;
     cmd30.beta.b0 = 3.0;
@@ -95,31 +54,23 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
     unsigned char stream_data[1024];
     cbor_stream_t stream = {stream_data, sizeof(stream_data), 0};
     cmd_data30_pack(&stream, &cmd30);
-    qDebug() << "size" << stream.size;
 
     sendCommand(server.first, Env, PUT, QByteArray(reinterpret_cast<char*>(stream.data), stream.size));
     sendCommand(server.first, Env, GET);
+
+    ///////////////////////////////
+    cmd_data19_t cmd19;
+    cmd19.timestamp = dt;
+
+    unsigned char stream_data_rtc[1024];
+    cbor_stream_t stream_rtc = {stream_data_rtc, sizeof(stream_data_rtc), 0};
+    cmd_data19_pack(&stream_rtc, &cmd19);
+    sendCommand(server.first, Rtc, POST, QByteArray(reinterpret_cast<char*>(stream_rtc.data), stream_rtc.size));
+    sendCommand(server.first, Rtc, GET);
+
+    ////////////////////////////////
+    sendCommand(server.first, SelfTest, POST);
   }
-
-//  QVariantMap map;
-
-//  QVariantMap map1;
-//  map1["int"] = 56;
-
-//  map["int"] = 42;
-//  map["bar"] = 3.14;
-//  map["baz"] = "Hello world";
-//  map["map"] = map1;
-
-//  qDebug() << (CBOR::unpack(CBOR::pack(map)) == map);
-
-//  QFile f("/home/alexey/project/rmoserver/data/pp_pss_000_000.dat");
-//  qDebug() << f.open(QIODevice::ReadOnly);
-//  QDataStream in(&f);    // read the data serialized from the file
-//  int i;
-//  in >> i;
-//  qDebug() << i;
-//  f.close();
 }
 
 
@@ -133,6 +84,12 @@ void Server::exitProgramm(int sig)
   Q_UNUSED(sig)
 
   QCoreApplication::exit(0);
+}
+
+
+void Server::postSettingServer()
+{
+
 }
 
 
@@ -164,24 +121,38 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
 
   if (reply->error() == QNetworkReply::NoError)
   {
-    qDebug() << "ok";
+    QByteArray resultData = reply->readAll();
+
     switch (requestType)
     {
       case GET:
       {
-        QByteArray resultData = reply->readAll();
-        QDataStream stream(&resultData,  QIODevice::ReadOnly);
+        QDataStream stream(&resultData, QIODevice::ReadOnly);
         stream.setByteOrder(QDataStream::LittleEndian);
 
-        //qint32 dt;
-        //stream >> dt;
-        //qDebug() << qFromBigEndian<char*>(resultData.data());
-        //
         if (cmd == Env)
+        {
+          //qDebug() << resultData;
+        }
+        else if (cmd == Rtc)
+        {
+          qDebug() << resultData;
+          cmd_data19_t cmd19;
+          size_t offset = 0;
+          cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(resultData.data()), sizeof(resultData.length()), 0};
+          cmd_data19_unpack(&stream_rtc, &offset, &cmd19);
+          qDebug() << cmd19.timestamp;
+
+        }
+
+        break;
+      }
+      case POST:
+      {
+        if (cmd == SelfTest)
         {
           qDebug() << resultData;
         }
-
         break;
       }
       default: {}

@@ -23,7 +23,8 @@ HEADERS += \
     structs/cmd_data.h \
     structs/cmd_data_packer.h \
     structs/cmd_data_debug.h \
-    structs/cmd_data_rnd.h
+    structs/cmd_data_rnd.h \
+    src/commandType.h
 
 SOURCES += main.cpp \
     src/Server.cpp \
