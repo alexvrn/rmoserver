@@ -1,5 +1,19 @@
 // Local
 #include "HTTPServer.h"
+#include <qhttprequest.h>
+#include <qhttpresponse.h>
+
+// Qt
+#include <QEventLoop>
+//#include <QNetworkAccessManager>
+
+// CBOR
+#include <cbor.h>
+
+// structs
+#include <cmd_data.h>
+#include <cmd_data_packer.c>
+
 
 HTTPServer::HTTPServer(QObject *parent)
   : QObject(parent)
@@ -7,22 +21,28 @@ HTTPServer::HTTPServer(QObject *parent)
 {
   //! FAKE
   connect(&m_timer, SIGNAL(timeout()), SLOT(timer()));
-  m_timer.start(1000);
+  m_timer.start(5000);
 
-  connect(m_httpServer, SIGNAL(newRequest(QHttpRequest*, QHttpResponse*)), this, SLOT(handle(QHttpRequest*, QHttpResponse*)));
+  connect(m_httpServer, SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)), this, SLOT(handle(QHttpRequest*, QHttpResponse*)));
+  //man = new QNetworkAccessManager(this);
 }
 
 
 void HTTPServer::timer()
 {
-  emit pgasData(QByteArray("data"));
+  //emit pgasData(QByteArray("data"));
+
+//  QUrl url("http://127.0.0.1:2777");
+//  QNetworkRequest request(url);
+//  request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
+//  man->post(request, QByteArray("wewedata"));
 }
 
 
 bool HTTPServer::listen(int port)
 {
   // let's go
-  bool isListen = m_httpServer->listen(port);
+  bool isListen = m_httpServer->listen(QHostAddress::Any, port);
   if (isListen)
     qDebug() << tr("Http server запущен");
   else
@@ -31,25 +51,85 @@ bool HTTPServer::listen(int port)
   return isListen;
 }
 
+void HTTPServer::accumulate1(const QByteArray& dt)
+{
+  qDebug() << dt;
+}
 
 void HTTPServer::handle(QHttpRequest* request, QHttpResponse* response)
 {
-  QByteArray body = request->body();
-  QHttpRequest::HttpMethod method = request->method();
+  if (request->header("expect") == "100-continue")
+  {
+    response->writeHead(QHttpResponse::STATUS_CONTINUE);
+    response->end();
+    return;
+  }
+
+  bool shallWeWaitOrHandleThePOSTRequestNow = !request->body().isEmpty();
+  const auto method = request->method();
+  if ((method == QHttpRequest::HTTP_POST || method == QHttpRequest::HTTP_PUT) && !shallWeWaitOrHandleThePOSTRequestNow)
+  {
+    new RequestProcess(request, response, this);
+    return;
+  }
+
   switch (method)
   {
     case QHttpRequest::HTTP_GET:
-      qDebug() << "get";
-      emit pgasData(body);
+    {
+      //emit pgasData(body);
+      response->writeHead(QHttpResponse::STATUS_OK);
+      response->end();
       break;
-    case QHttpRequest::HTTP_POST:
-      qDebug() << "port";
-      break;
-    case QHttpRequest::HTTP_PUT:
-      qDebug() << "put";
-      break;
+    }
     default:
+    {
       qWarning() << tr("Неизвестный тип запроса");
       break;
+    }
   }
+}
+
+
+RequestProcess::RequestProcess(QHttpRequest* request, QHttpResponse* response, QObject *parent)
+  : QObject(parent)
+  , m_request(request)
+  , m_response(response)
+{
+  response->writeHead(QHttpResponse::STATUS_OK);
+
+  connect(m_request, SIGNAL(data(const QByteArray&)), this, SLOT(accumulate(const QByteArray&)));
+  connect(m_request, SIGNAL(end()), this, SLOT(reply()));
+  connect(m_response, SIGNAL(done()), this, SLOT(deleteLater()));
+}
+
+
+void RequestProcess::accumulate(const QByteArray& data)
+{
+  const QString path = m_request->path();
+  auto paths = path.split("-");
+  if (paths.length() != 2)
+  {
+    qWarning() << tr("Неверный url:") << path;
+    return;
+  }
+  const QString streamNumber = paths[1];
+
+  qDebug() << "data:" << streamNumber << path;// << data;
+
+  cmd_data121_t cmd121;
+  size_t offset = 0;
+  QByteArray d = data;
+  cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(d.data()), sizeof(data.length()), 0};
+  cmd_data121_unpack(&stream_rtc, &offset, &cmd121);
+  qDebug() << cmd121.streamId;
+  qDebug() << cmd121.timestamp;
+  qDebug() << QString(cmd121.sweepId).toUtf8();
+  qDebug() << cmd121.beamCount;
+}
+
+
+void RequestProcess::reply()
+{
+  m_response->end();
 }

@@ -15,8 +15,8 @@
 #include <cbor.h>
 
 // structs
-#include <cmd_data.h>
-#include <cmd_data_packer.c>
+//#include <cmd_data.h>
+//#include <cmd_data_packer.c>
 
 const quint16 idMessage = 0xCAFE;
 
@@ -33,44 +33,61 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
 #endif
 
   // Все IP для ПГАС находятся в конфиг файле
-  for (auto server : m_pgasServers)
-  {
-    qDebug() << tr("Настройка сервера") << server;
-    //sendCommand(server.first, Reboot, POST);
+//  for (auto server : m_pgasServers)
+//  {
+//    qDebug() << tr("Настройка сервера") << server;
+//    //sendCommand(server.first, Reboot, POST);
 
-    qint32 dt = QDateTime::currentMSecsSinceEpoch() / 1000;
+//    qint32 dt = QDateTime::currentMSecsSinceEpoch() / 1000;
 
-    cmd_data30_t cmd30;
-    cmd30.beta.b0 = 3.0;
-    cmd30.beta.b1 = 3.0;
-    cmd30.beta.b2 = 3.0;
-    for(int i=0; i<24;++i)
-    {
-      cmd30.soundVelocity[i].sv = 3;
-      cmd30.soundVelocity[i].toHour = 1;
-    }
-    cmd30.multipathTimeCoef = 20;
+//    cmd_data30_t cmd30;
+//    cmd30.beta.b0 = 3.0;
+//    cmd30.beta.b1 = 3.0;
+//    cmd30.beta.b2 = 3.0;
+//    for(int i=0; i<24;++i)
+//    {
+//      cmd30.soundVelocity[i].sv = 3;
+//      cmd30.soundVelocity[i].toHour = 1;
+//    }
+//    cmd30.multipathTimeCoef = 20;
 
-    unsigned char stream_data[1024];
-    cbor_stream_t stream = {stream_data, sizeof(stream_data), 0};
-    cmd_data30_pack(&stream, &cmd30);
+//    unsigned char stream_data[1024];
+//    cbor_stream_t stream = {stream_data, sizeof(stream_data), 0};
+//    cmd_data30_pack(&stream, &cmd30);
 
-    sendCommand(server.first, Env, PUT, QByteArray(reinterpret_cast<char*>(stream.data), stream.size));
-    sendCommand(server.first, Env, GET);
+//    //sendCommand(server.first, Env, PUT, QByteArray(reinterpret_cast<char*>(stream.data), stream.size));
+//    //sendCommand(server.first, Env, GET);
 
-    ///////////////////////////////
-    cmd_data19_t cmd19;
-    cmd19.timestamp = dt;
+//    ///////////////////////////////
+//    cmd_data19_t cmd19;
+//    cmd19.timestamp = dt;
 
-    unsigned char stream_data_rtc[1024];
-    cbor_stream_t stream_rtc = {stream_data_rtc, sizeof(stream_data_rtc), 0};
-    cmd_data19_pack(&stream_rtc, &cmd19);
-    sendCommand(server.first, Rtc, POST, QByteArray(reinterpret_cast<char*>(stream_rtc.data), stream_rtc.size));
-    sendCommand(server.first, Rtc, GET);
+//    unsigned char stream_data_rtc[1024];
+//    cbor_stream_t stream_rtc = {stream_data_rtc, sizeof(stream_data_rtc), 0};
+//    cmd_data19_pack(&stream_rtc, &cmd19);
+//    //sendCommand(server.first, Rtc, POST, QByteArray(reinterpret_cast<char*>(stream_rtc.data), stream_rtc.size));
+//    //sendCommand(server.first, Rtc, GET);
 
-    ////////////////////////////////
-    sendCommand(server.first, SelfTest, POST);
-  }
+//    ////////////////////////////////
+//    //sendCommand(server.first, SelfTest, POST);
+
+//    {
+//      cmd_data165_t cmd165;
+//      cmd165.attChannelId = 1;
+//      strcpy(cmd165.baseURL, "localhost:2777");
+//      cmd165.interval = 10;
+//      cmd165.targetId = 1;
+
+//      cmd_data168_t cmd;
+//      cmd.stream_id[0] = cmd165;
+
+//      unsigned char stream_data_168[1024];
+//      cbor_stream_t stream_168 = {stream_data_168, sizeof(stream_data_168), 0};
+//      cmd_data168_pack(&stream_168, &cmd);
+
+//      //sendCommand(server.first, Streams, PUT, QByteArray(reinterpret_cast<char*>(stream_168.data), stream_168.size));
+//    }
+//  }
 }
 
 
@@ -99,7 +116,6 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
   QUrl url(QString("%1%2").arg(pgasHost).arg(commantString(cmd)));
   QNetworkRequest request(url);
 
-  QEventLoop loop;
   QNetworkReply* reply;
   switch (requestType)
   {
@@ -116,6 +132,7 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
       qWarning() << tr("Не выбран тип запроса");
       return;
   }
+  QEventLoop loop;
   QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
   loop.exec();
 
@@ -132,27 +149,33 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
 
         if (cmd == Env)
         {
-          //qDebug() << resultData;
+          qDebug() << resultData;
         }
         else if (cmd == Rtc)
         {
-          qDebug() << resultData;
-          cmd_data19_t cmd19;
-          size_t offset = 0;
-          cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(resultData.data()), sizeof(resultData.length()), 0};
-          cmd_data19_unpack(&stream_rtc, &offset, &cmd19);
-          qDebug() << cmd19.timestamp;
+//          qDebug() << resultData;
+//          cmd_data19_t cmd19;
+//          size_t offset = 0;
+//          cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(resultData.data()), sizeof(resultData.length()), 0};
+//          cmd_data19_unpack(&stream_rtc, &offset, &cmd19);
+//          qDebug() << cmd19.timestamp;
 
+        }
+        else if (cmd == Streams)
+        {
+          qDebug() << "stream" << resultData;
         }
 
         break;
       }
       case POST:
       {
-        if (cmd == SelfTest)
-        {
-          qDebug() << resultData;
-        }
+        qDebug() << "post 1" << resultData;
+        break;
+      }
+      case PUT:
+      {
+        qDebug() << "put 1" << resultData;
         break;
       }
       default: {}
@@ -194,6 +217,7 @@ QString Server::commantString(CommandType command) const
     case FirmwareBurn: return QStringLiteral("/firmware/burn");
     case Rtc: return QString("/rtc");
     case Env: return QString("/env-params");
+    case Streams: return QString("/streams");
     default:
       return QString();
   }
