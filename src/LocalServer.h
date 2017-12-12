@@ -7,6 +7,9 @@ class QLocalServer;
 class QLocalSocket;
 #include <QTimer>
 
+// Local
+#include <commandType.h>
+
 class LocalServer : public QObject
 {
   Q_OBJECT
@@ -27,7 +30,9 @@ class LocalServer : public QObject
   signals:
 
   public slots:
-    void pgasData(const QByteArray& data);
+    // cmd - команда или номер потока
+    // data - данные для отправки
+    void pgasData(CommandType::Command cmd, const QByteArray& data);
 
   private slots:
     void newConnection();
@@ -38,6 +43,9 @@ class LocalServer : public QObject
 
   private:
     void init();
+
+    // Парсим структуры, приходящих с сервера ПГАС
+    QVariantMap parseData(CommandType::Command cmd, const QByteArray& data) const;
 
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;

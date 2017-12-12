@@ -55,7 +55,7 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
 //    cbor_stream_t stream = {stream_data, sizeof(stream_data), 0};
 //    cmd_data30_pack(&stream, &cmd30);
 
-//    //sendCommand(server.first, Env, PUT, QByteArray(reinterpret_cast<char*>(stream.data), stream.size));
+//    //sendCommand(server.first, Env, PUT, QByteArray(reinterpret_cast<char*>(stream.data), static_cast<size_t>(stream.size)));
 //    //sendCommand(server.first, Env, GET);
 
 //    ///////////////////////////////
@@ -65,7 +65,7 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
 //    unsigned char stream_data_rtc[1024];
 //    cbor_stream_t stream_rtc = {stream_data_rtc, sizeof(stream_data_rtc), 0};
 //    cmd_data19_pack(&stream_rtc, &cmd19);
-//    //sendCommand(server.first, Rtc, POST, QByteArray(reinterpret_cast<char*>(stream_rtc.data), stream_rtc.size));
+//    //sendCommand(server.first, Rtc, POST, QByteArray(reinterpret_cast<char*>(stream_rtc.data), static_cast<size_t>(stream_rtc.size)));
 //    //sendCommand(server.first, Rtc, GET);
 
 //    ////////////////////////////////
@@ -85,7 +85,7 @@ Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)
 //      cbor_stream_t stream_168 = {stream_data_168, sizeof(stream_data_168), 0};
 //      cmd_data168_pack(&stream_168, &cmd);
 
-//      //sendCommand(server.first, Streams, PUT, QByteArray(reinterpret_cast<char*>(stream_168.data), stream_168.size));
+//      //sendCommand(server.first, Streams, PUT, QByteArray(reinterpret_cast<char*>(stream_168.data), static_cast<size_t>(stream_168.size)));
 //    }
 //  }
 }
@@ -156,7 +156,7 @@ void Server::sendCommand(const QString& pgasHost, CommandType cmd,
 //          qDebug() << resultData;
 //          cmd_data19_t cmd19;
 //          size_t offset = 0;
-//          cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(resultData.data()), sizeof(resultData.length()), 0};
+//          cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(resultData.data()), static_cast<size_t>(resultData.length()), 0};
 //          cmd_data19_unpack(&stream_rtc, &offset, &cmd19);
 //          qDebug() << cmd19.timestamp;
 

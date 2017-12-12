@@ -2,17 +2,19 @@
 #include "HTTPServer.h"
 #include <qhttprequest.h>
 #include <qhttpresponse.h>
+#include <commandType.h>
 
 // Qt
 #include <QEventLoop>
+#include <QDataStream>
 //#include <QNetworkAccessManager>
 
 // CBOR
 #include <cbor.h>
 
 // structs
-#include <cmd_data.h>
-#include <cmd_data_packer.c>
+//#include <cmd_data.h>
+//#include <cmd_data_packer.c>
 
 
 HTTPServer::HTTPServer(QObject *parent)
@@ -21,7 +23,7 @@ HTTPServer::HTTPServer(QObject *parent)
 {
   //! FAKE
   connect(&m_timer, SIGNAL(timeout()), SLOT(timer()));
-  m_timer.start(5000);
+  //m_timer.start(5000);
 
   connect(m_httpServer, SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)), this, SLOT(handle(QHttpRequest*, QHttpResponse*)));
   //man = new QNetworkAccessManager(this);
@@ -51,13 +53,10 @@ bool HTTPServer::listen(int port)
   return isListen;
 }
 
-void HTTPServer::accumulate1(const QByteArray& dt)
-{
-  qDebug() << dt;
-}
 
 void HTTPServer::handle(QHttpRequest* request, QHttpResponse* response)
 {
+  // Это используется только в протоколе HTTP 1.1
   if (request->header("expect") == "100-continue")
   {
     response->writeHead(QHttpResponse::STATUS_CONTINUE);
@@ -69,24 +68,20 @@ void HTTPServer::handle(QHttpRequest* request, QHttpResponse* response)
   const auto method = request->method();
   if ((method == QHttpRequest::HTTP_POST || method == QHttpRequest::HTTP_PUT) && !shallWeWaitOrHandleThePOSTRequestNow)
   {
-    new RequestProcess(request, response, this);
+    // Объект сам себя удаляет после получения данных
+    auto requestProcess = new RequestProcess(request, response, this);
+    connect(requestProcess, &RequestProcess::pgasData, this, &HTTPServer::pgasData);
     return;
   }
-
-  switch (method)
+  else if (method == QHttpRequest::HTTP_GET)
   {
-    case QHttpRequest::HTTP_GET:
-    {
-      //emit pgasData(body);
-      response->writeHead(QHttpResponse::STATUS_OK);
-      response->end();
-      break;
-    }
-    default:
-    {
-      qWarning() << tr("Неизвестный тип запроса");
-      break;
-    }
+    //emit pgasData(body);
+    response->writeHead(QHttpResponse::STATUS_OK);
+    response->end();
+  }
+  else
+  {
+    qWarning() << tr("Необрабатываемый тип запроса") << method;
   }
 }
 
@@ -113,19 +108,38 @@ void RequestProcess::accumulate(const QByteArray& data)
     qWarning() << tr("Неверный url:") << path;
     return;
   }
-  const QString streamNumber = paths[1];
+  // Номер потока (1-22)
+  CommandType::Command streamNumber = static_cast<CommandType::Command>(paths[1].toInt());
+  emit pgasData(streamNumber, data);
 
-  qDebug() << "data:" << streamNumber << path;// << data;
-
-  cmd_data121_t cmd121;
-  size_t offset = 0;
-  QByteArray d = data;
-  cbor_stream_t stream_rtc = {reinterpret_cast<unsigned char*>(d.data()), sizeof(data.length()), 0};
-  cmd_data121_unpack(&stream_rtc, &offset, &cmd121);
-  qDebug() << cmd121.streamId;
-  qDebug() << cmd121.timestamp;
-  qDebug() << QString(cmd121.sweepId).toUtf8();
-  qDebug() << cmd121.beamCount;
+  // Проверка распаковки данных
+//  QByteArray d = data;
+//  size_t offset = 0;
+//  cbor_stream_t cborStream = {reinterpret_cast<unsigned char*>(d.data()), static_cast<size_t>(data.length()), 0};
+//  switch (streamNumber)
+//  {
+//    case CommandType::Stream_1:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      break;
+//    }
+//    case CommandType::Stream_2:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      break;
+//    }
+//    case CommandType::Stream_3:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      break;
+//    }
+//    default:
+//      //qWarning() << tr("Неизвестный номер потока") << streamNumber;
+//      break;
+//  }
 }
 
 

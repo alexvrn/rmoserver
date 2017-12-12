@@ -9,6 +9,9 @@
 // Http server
 #include <qhttpserver.h>
 
+// Local
+#include <commandType.h>
+
 class HTTPServer : public QObject
 {
   Q_OBJECT
@@ -17,7 +20,7 @@ class HTTPServer : public QObject
     explicit HTTPServer(QObject *parent = nullptr);
 
   signals:
-    void pgasData(const QByteArray& data);
+    void pgasData(CommandType::Command cmd, const QByteArray& data);
 
   public slots:
     bool listen(int port);
@@ -25,7 +28,6 @@ class HTTPServer : public QObject
   private slots:
     void timer(); //! FAKE
     void handle(QHttpRequest* request, QHttpResponse* response);
-    void accumulate1(const QByteArray&);
 
   private:
     //! FAKE
@@ -42,6 +44,9 @@ class RequestProcess : public QObject
 
   public:
     RequestProcess(QHttpRequest* request, QHttpResponse* response, QObject *parent = nullptr);
+
+  signals:
+    void pgasData(CommandType::Command cmd, const QByteArray& data);
 
   private slots:
     void accumulate(const QByteArray& data);
