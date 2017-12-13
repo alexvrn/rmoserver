@@ -7,14 +7,6 @@
 // Qt
 #include <QEventLoop>
 #include <QDataStream>
-//#include <QNetworkAccessManager>
-
-// CBOR
-#include <cbor.h>
-
-// structs
-//#include <cmd_data.h>
-//#include <cmd_data_packer.c>
 
 
 HTTPServer::HTTPServer(QObject *parent)
@@ -26,7 +18,6 @@ HTTPServer::HTTPServer(QObject *parent)
   //m_timer.start(5000);
 
   connect(m_httpServer, SIGNAL(newRequest(QHttpRequest*,QHttpResponse*)), this, SLOT(handle(QHttpRequest*, QHttpResponse*)));
-  //man = new QNetworkAccessManager(this);
 }
 
 

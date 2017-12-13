@@ -9,7 +9,13 @@
 #define PORT_MIN	2000
 #define PORT_MAX	3000
 
-//#define USE_EMULATOR
+#define CHECK_RET	if(ret != 0) {				\
+				printf("%s:%d: ERROR\n",	\
+				 __func__,__LINE__);		\
+				goto exit;			\
+			}
+
+#define USE_EMULATOR
 
 dev_type_t dev = DEV_UNDEF;
 URL_RESPONSE_HANDLER url_response_handler = NULL;
@@ -27,6 +33,12 @@ usage(char* pname, char* msg) {
 	exit(255);
 }
 
+#define T1	"first"
+#define T2	"second"
+#define T3	"third"
+#define T4	"fourth"
+#define TT	"test data from sensor"
+
 int
 main(int argc, char** argv) {
 	int ret = 0;
@@ -35,9 +47,16 @@ main(int argc, char** argv) {
 
 #ifdef USE_EMULATOR
 	sensor_emulator_t* shp_emu;
-	char* shp_file1 = "../pp_pss_000_001.dat";
-	char* shp_file2 = "../pp_pss_001_000.dat";
-	char* shp_file3 = "../pp_pss_001_001.dat";
+	char* shp_file1 = "./scripts/pp_pss_000_001.dat";
+	char* shp_file2 = "./scripts/pp_pss_001_000.dat";
+	char* shp_file3 = "./scripts/pp_pss_001_001.dat";
+
+	sensor_emulator_t* stream_emu[PGAS_STREAM_MAX];
+	unsigned stream_emu_data[PGAS_STREAM_MAX];
+	for(int e=0; e<PGAS_STREAM_MAX; e++) {
+		stream_emu_data[e] = e;
+	}
+	TRACE
 #endif
 
 	//parse arguments
@@ -60,14 +79,6 @@ main(int argc, char** argv) {
 		usage(argv[0], "bad port number");
 	}
 
-#ifdef USE_EMULATOR
-	//test sensor emulator
-	shp_emu = sensor_emulator_start(
-			0.5,
-			shp_emulator, (void*)shp_file1,
-			shp_handler, NULL);
-#endif
-
 	//starting httpd server accordance to device type emulated
 	switch(dev) {
 		case DEV_PU:
@@ -88,15 +99,40 @@ main(int argc, char** argv) {
 	}
 	printf("Start HTTPD: port %d OK\n", port);
 
-	pgas_client();
+	ret = pgas_stream_init();
+	CHECK_RET
+
+#ifdef USE_EMULATOR
+	//test sensor emulator
+	shp_emu = sensor_emulator_start(
+			0.5,
+			shp_emulator, (void*)shp_file1,
+			shp_handler, NULL);
+
+	for(int e=0; e<PGAS_STREAM_MAX; e++) {
+		stream_emu[e] = sensor_emulator_start(
+			1,
+			emu_stream_emulator, NULL,
+			emu_stream_handler, &stream_emu_data[e]
+			);
+	}
+#endif
+
+	while(pgas_stream_proc(pgas_stream) == 0) ;
 
 	//processing request in *_url_request_handler function
 	(void)getc(stdin);
 	PGAS_LOG("Waiting for request...");
 
+exit:
 #ifdef USE_EMULATOR
 	sensor_emulator_stop(shp_emu);
+
+	for(int e=0; e<PGAS_STREAM_MAX; e++) {
+		sensor_emulator_stop(stream_emu[e]);
+	}
 #endif
+	pgas_stream_cleanup();
 
 	//cancel httpd
 	ret = httpd_stop(httpd_daemon);

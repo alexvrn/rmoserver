@@ -1,10 +1,14 @@
 /*
  * GENERATED AUTOMATICALLY DO NOT FIX
- * 2017-11-29 16:45:19
+ * 2017-12-13 16:19:47
  */
 
 #ifndef HTML_H
 #define HTML_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #include "stdio.h"
@@ -13,6 +17,8 @@
 #include "time.h"
 
 #include "cbor.h"
+
+#include "curl/curl.h"
 
 #include "types.h"
 
@@ -23,10 +29,14 @@
 #include "cmd_data_packer.h"
 #include "cmd_handler.h"
 #include "cmd_data.h"
+#include "cbuf.h"
+
+#include "pgas_stream.h"
+
 #include "cmd.h"
 
 #define UNDEFINED_SIZE 2
-#define STREAM_DATA_SIZE (1024*32)
+#define CBOR_STREAM_DATA_SIZE (1024*32)
 
 
 #define PAGE_PGAS "<html><head><meta charset='utf-8'><title>PGAS</title></head><body>\n"\
@@ -107,5 +117,10 @@
 	"<tr><td margin='0' padding='0'><form target='_blank'action='<base-url>/<Идентификатор цели>/<Штамп времени>-<Код потока>' method='PUT'><button>request</button><labe>base-url-query</label><input type='text' name='base-url-query'/><label>45 - Выдача формуляра режима ГЛ</label></form>\n"\
 	"</table>"\
 	"</body></html>"
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif
 

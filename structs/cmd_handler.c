@@ -1,6 +1,6 @@
 /*
  * GENERATED AUTOMATICALLY DO NOT FIX
- * 2017-11-29 16:45:19
+ * 2017-12-13 16:19:47
  */
 
 
@@ -11,6 +11,8 @@
 
 #include "cbor.h"
 
+#include "curl/curl.h"
+
 #include "types.h"
 
 #include "common.h"
@@ -20,10 +22,14 @@
 #include "cmd_data_packer.h"
 #include "cmd_handler.h"
 #include "cmd_data.h"
+#include "cbuf.h"
+
+#include "pgas_stream.h"
+
 #include "cmd.h"
 
 #define UNDEFINED_SIZE 2
-#define STREAM_DATA_SIZE (1024*32)
+#define CBOR_STREAM_DATA_SIZE (1024*32)
 
 /* PGAS/SKGP handler */
 /* 1 Перезагрузка программного обеспечения ПГАС/СКГП */
@@ -139,7 +145,7 @@ handler_get_firmware_sha1(const char* param, cbor_stream_t *stream_in, cbor_stre
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data16_pack(stream_out, &cmd_data16);
+	ret = cmd_data16_pack(stream_out, (void*)&cmd_data16);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -159,7 +165,7 @@ handler_get_rtc(const char* param, cbor_stream_t *stream_in, cbor_stream_t *stre
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data19_pack(stream_out, &cmd_data19);
+	ret = cmd_data19_pack(stream_out, (void*)&cmd_data19);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -231,7 +237,7 @@ handler_get_antenna_defective_columns(const char* param, cbor_stream_t *stream_i
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data28_pack(stream_out, &cmd_data28);
+	ret = cmd_data28_pack(stream_out, (void*)&cmd_data28);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -277,7 +283,7 @@ handler_get_env_params(const char* param, cbor_stream_t *stream_in, cbor_stream_
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data36_pack(stream_out, &cmd_data36);
+	ret = cmd_data36_pack(stream_out, (void*)&cmd_data36);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -349,7 +355,7 @@ handler_get_active_schedule(const char* param, cbor_stream_t *stream_in, cbor_st
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data47_pack(stream_out, &cmd_data47);
+	ret = cmd_data47_pack(stream_out, (void*)&cmd_data47);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -421,7 +427,7 @@ handler_get_utcs_transmit_schedule(const char* param, cbor_stream_t *stream_in, 
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data58_pack(stream_out, &cmd_data58);
+	ret = cmd_data58_pack(stream_out, (void*)&cmd_data58);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -493,7 +499,7 @@ handler_get_satcom_schedule(const char* param, cbor_stream_t *stream_in, cbor_st
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data69_pack(stream_out, &cmd_data69);
+	ret = cmd_data69_pack(stream_out, (void*)&cmd_data69);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -565,7 +571,7 @@ handler_get_passive_processing_parameters(const char* param, cbor_stream_t *stre
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data71_pack(stream_out, &cmd_data71);
+	ret = cmd_data71_pack(stream_out, (void*)&cmd_data71);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -611,7 +617,7 @@ handler_get_att_1(const char* param, cbor_stream_t *stream_in, cbor_stream_t *st
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data82_pack(stream_out, &cmd_data82);
+	ret = cmd_data82_pack(stream_out, (void*)&cmd_data82);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -644,7 +650,7 @@ handler_get_passive_marks(const char* param, cbor_stream_t *stream_in, cbor_stre
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data101_pack(stream_out, &cmd_data101);
+	ret = cmd_data101_pack(stream_out, (void*)&cmd_data101);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -664,7 +670,7 @@ handler_get_active_GET_ANGLE_ID_marks(const char* param, cbor_stream_t *stream_i
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data129_pack(stream_out, &cmd_data129);
+	ret = cmd_data129_pack(stream_out, (void*)&cmd_data129);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -684,7 +690,7 @@ handler_get_utcs_inbox(const char* param, cbor_stream_t *stream_in, cbor_stream_
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data142_pack(stream_out, &cmd_data142);
+	ret = cmd_data142_pack(stream_out, (void*)&cmd_data142);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -704,7 +710,7 @@ handler_get_passive_targets(const char* param, cbor_stream_t *stream_in, cbor_st
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data151_pack(stream_out, &cmd_data151);
+	ret = cmd_data151_pack(stream_out, (void*)&cmd_data151);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -724,7 +730,7 @@ handler_get_active_targets(const char* param, cbor_stream_t *stream_in, cbor_str
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data160_pack(stream_out, &cmd_data160);
+	ret = cmd_data160_pack(stream_out, (void*)&cmd_data160);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -796,7 +802,7 @@ handler_get_streams(const char* param, cbor_stream_t *stream_in, cbor_stream_t *
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data172_pack(stream_out, &cmd_data172);
+	ret = cmd_data172_pack(stream_out, (void*)&cmd_data172);
 	if(ret == 0) {
 		goto fail;
 	}
@@ -816,7 +822,7 @@ handler_get_self_diagnosis(const char* param, cbor_stream_t *stream_in, cbor_str
 		printf("param: %s\n", param);
 
 	/* Output data */
-	ret = cmd_data187_pack(stream_out, &cmd_data187);
+	ret = cmd_data187_pack(stream_out, (void*)&cmd_data187);
 	if(ret == 0) {
 		goto fail;
 	}

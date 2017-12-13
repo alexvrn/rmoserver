@@ -15,8 +15,7 @@
 #include <cbor.h>
 
 // structs
-#include <cmd_data.h>
-#include <cmd_data_packer.c>
+#include <cmd_data_packer.h>
 
 
 const quint16 idMessage = 0xCAFE;
@@ -167,158 +166,6 @@ void LocalServer::readyRead()
 }
 
 
-QVariantMap LocalServer::parseData(CommandType::Command cmd, const QByteArray& data) const
-{
-  QVariantMap vm;
-  vm["i"] = 1;
-  vm["j"] = 2;
-  return vm;
-  //QByteArray _d = data; //! TODO
-  //size_t offset = 0;
-  //cbor_stream_t cborStream = {reinterpret_cast<unsigned char*>(_d.data()), static_cast<size_t>(data.length()), 0};
-//  switch (cmd)
-//  {
-//    case CommandType::Stream_1:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_2:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_3:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_4:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_5:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_6:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_7:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_8:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_9:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//     return QVariantMap();
-//    }
-//    case CommandType::Stream_10:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_11:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_12:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_13:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_14:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_15:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_16:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_17:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//     return QVariantMap();
-//    }
-//    case CommandType::Stream_18:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_19:
-//    {
-//      cmd_data86_t cmdData;
-//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_20:
-//    {
-//      cmd_data89_t cmdData;
-//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_21:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    case CommandType::Stream_22:
-//    {
-//      cmd_data92_t cmdData;
-//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
-//      return QVariantMap();
-//    }
-//    default:
-//    {
-//      qWarning() << tr("Неизвестный номер потока") << cmd;
-//      return QVariantMap();
-//    }
-//  }
-}
-
-
 void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
 {
   bool fromPgas = cmd >= CommandType::Stream_1 && cmd <= CommandType::Stream_22;
@@ -347,29 +194,15 @@ void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
   if (!m_rmoSocket)
     return;
 
+  // подготовка данных для записи
   QByteArray package;
   QDataStream out(&package, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_5_9);
   out << quint16(idMessage);
   out << quint16(cmd);
-
-  // Проверка на код потока
-  if (fromPgas)
-  {
-     QVariant v;
-     v.setValue(parseData(cmd, data));
-     QByteArray ba = v.toByteArray();
-     out << quint32(ba.length());
-     if (ba.length())
-       out.writeRawData(ba.data(), ba.length());
-  }
-  else
-  {
-    // подготовка данных для записи
-    out << quint32(data.length());
-    if (data.length())
-      out.writeRawData(data.data(), data.length());
-  }
+  out << quint32(data.length());
+  if (data.length())
+    out.writeRawData(data.data(), data.length());
 
   // Отправка данных
   m_rmoSocket->write(package);

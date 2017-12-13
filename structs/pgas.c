@@ -7,29 +7,45 @@
 #define TEST_HOST_PU	"localhost"
 #define TEST_PORT_PU	"2777"
 
-extern unsigned char stream_data[STREAM_DATA_SIZE];
+//extern unsigned char stream_data[CBOR_STREAM_DATA_SIZE];
 
 int
-pgas_client(void) {
-	CURL *curl;
-	CURLcode res;
+pgas_http_put_create(char* url, char* data, size_t size) {
+	CURLcode ret = 0;
+	long status = 0;
 
-	static const char *postthis = "test msg";
-
-	curl = curl_easy_init();
-	if(curl) {
-		curl_easy_setopt(curl, CURLOPT_URL,
-			"http://" TEST_HOST_PU ":" TEST_PORT_PU);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postthis);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postthis));
-		res = curl_easy_perform(curl);
-		if(res != CURLE_OK)
-			fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			curl_easy_strerror(res));
-		curl_easy_cleanup(curl);
+	if(!curl_handler) {
+		ret = -1;
+		goto exit;
 	}
 
-	return res;
+	curl_easy_setopt(curl_handler, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+	curl_easy_setopt(curl_handler, CURLOPT_URL, url);
+	curl_easy_setopt(curl_handler, CURLOPT_TIMEOUT, 1L);
+	curl_easy_setopt(curl_handler, CURLOPT_VERBOSE, 1L);
+	curl_easy_setopt(curl_handler, CURLOPT_POSTFIELDS, data);
+	curl_easy_setopt(curl_handler, CURLOPT_POSTFIELDSIZE, (long)size);
+
+
+	ret = curl_easy_perform(curl_handler);
+	printf("REQ: %s %ld byte: ", url, size);
+	switch(ret) {
+		case CURLE_OK:
+		case CURLE_GOT_NOTHING:
+			if(CURLE_OK == curl_easy_getinfo(curl_handler,
+				CURLINFO_RESPONSE_CODE, &status)) {
+				printf("status %ld\n", status);
+				break;
+			}
+			break;
+		default:
+			printf("failed: %s\n",
+				curl_easy_strerror(ret));
+			break;
+	}
+
+exit:
+	return ret;
 }
 
 int
@@ -63,19 +79,19 @@ pgas_url_request_handler(void* arg, void* conn,
 					exit(0);
 				}
 				//request stream
-				stream_in.data = (unsigned char*)(request_data);
-				stream_in.size = request_data_size;
-				stream_in.pos = 0;
+				cbor_stream_in.data = (unsigned char*)(request_data);
+				cbor_stream_in.size = request_data_size;
+				cbor_stream_in.pos = 0;
 				//response stream
-				stream_out.pos = 0;
-				pgas_cmd[i].handler(url, &stream_in, &stream_out);
+				cbor_stream_out.pos = 0;
+				pgas_cmd[i].handler(url, &cbor_stream_in, &cbor_stream_out);
 				printf("REQUEST DATA : %p %lu byte\n",
-					stream_in.data, stream_in.size);
+					cbor_stream_in.data, cbor_stream_in.size);
 				printf("RESPONSE DATA: %p %lu byte\n",
-					stream_out.data, stream_out.pos);
-				print_hex_word(stream_out.data, stream_out.pos);
+					cbor_stream_out.data, cbor_stream_out.pos);
+				print_hex_word(cbor_stream_out.data, cbor_stream_out.pos);
 				ret = url_response_handler(conn,
-					(char*)stream_out.data, stream_out.pos,
+					(char*)cbor_stream_out.data, cbor_stream_out.pos,
 					status);
 				break;
 			}
@@ -83,12 +99,76 @@ pgas_url_request_handler(void* arg, void* conn,
 		if(i == PGAS_CMD_MAX) {
 			printf("CMD: NOT FOUND\n");
 			ret = url_response_handler(conn,
-				(char*)stream_out.data, 0,
+				(char*)cbor_stream_out.data, 0,
 				404);
 		}
 	}
 
 exit:
+	return ret;
+}
+
+int
+pgas_stream_proc(pgas_stream_t* stream) {
+	int ret = 0;
+	struct timeval tv;
+	unsigned now = 0;
+	pgas_stream_t* st = NULL;
+	char* data = NULL;
+	char url[1024] = "";
+
+	gettimeofday(&tv, NULL);
+	now = tv.tv_sec;
+
+	printf("%s:%u:%u\n", __func__, __LINE__, now);
+	for(int i=0; i<PGAS_STREAM_MAX; i++) {
+
+		st = &stream[i];
+		//printf("%d Process stream %d %s:\n",
+		//	i, stream[i].id, stream[i].info);
+
+		if(st->interval <= 0) {
+			continue;
+		}
+		//printf("st %d interval %d\n", st->id, st->interval);
+
+		if(st->last_timestamp + st->interval >= now) {
+			continue;
+		}
+		//printf("st %d time left %d\n", st->id, now - st->last_timestamp);
+
+		if(cbuf_is_empty(&st->cbuf[st->irq_cbuf_id]) != 0) {
+			printf("st %d cbuf[%d]\n", st->id, st->irq_cbuf_id);
+
+			st->irq_cbuf_id = !st->irq_cbuf_id;
+
+			while(0==cbuf_get(&st->cbuf[!st->irq_cbuf_id], &data)) {
+
+				st->http_pack(&cbor_stream_out, data);
+
+				snprintf(url, 1024, "%s/%d-%d",
+					"http://" TEST_HOST_PU ":" TEST_PORT_PU,
+					now, st->id);
+				pgas_http_put_create(
+					url, //"http://" TEST_HOST_PU ":" TEST_PORT_PU,
+					(char*)cbor_stream_out.data, cbor_stream_out.pos);
+
+				//clenup cbor buffer
+				cbor_stream_out.pos = 0;
+
+				ret = cbuf_remove(&st->cbuf[!st->irq_cbuf_id]);
+				if(ret != 0) {
+					printf("%s:%d: error\n", __func__,__LINE__);
+					goto fail;
+				}
+			}
+		}
+
+		st->last_timestamp = now;
+	}
+
+	sleep(1);
+fail:
 	return ret;
 }
 

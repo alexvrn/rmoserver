@@ -1,9 +1,15 @@
-#include <microhttpd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "common.h"
+
+#include <microhttpd.h>
+#include <curl/curl.h>
+
+/*
+* HTTP SERVER - LIBMICROHTTPD
+*/
 
 static URL_REQUEST_HANDLER url_request_handler = NULL;
 
@@ -96,4 +102,10 @@ httpd_stop(struct MHD_Daemon* daemon) {
 exit:
 	return ret;
 }
+
+/*
+* HTTP CLIENT - LIBCURL
+*/
+
+CURL* curl_handler = NULL;
 

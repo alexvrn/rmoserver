@@ -30,8 +30,6 @@ class LocalServer : public QObject
   signals:
 
   public slots:
-    // cmd - команда или номер потока
-    // data - данные для отправки
     void pgasData(CommandType::Command cmd, const QByteArray& data);
 
   private slots:
@@ -43,9 +41,6 @@ class LocalServer : public QObject
 
   private:
     void init();
-
-    // Парсим структуры, приходящих с сервера ПГАС
-    QVariantMap parseData(CommandType::Command cmd, const QByteArray& data) const;
 
     QLocalServer* m_localServer;
     QLocalSocket* m_rmoSocket;

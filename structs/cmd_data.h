@@ -1,10 +1,14 @@
 /*
  * GENERATED AUTOMATICALLY DO NOT FIX
- * 2017-11-29 16:45:19
+ * 2017-12-13 16:19:47
  */
 
 #ifndef CMD_DATA_H
 #define CMD_DATA_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #include "stdio.h"
@@ -14,6 +18,8 @@
 
 #include "cbor.h"
 
+#include "curl/curl.h"
+
 #include "types.h"
 
 #include "common.h"
@@ -22,10 +28,15 @@
 #include "cmd_data_rnd.h"
 #include "cmd_data_packer.h"
 #include "cmd_handler.h"
+#include "cmd_data.h"
+#include "cbuf.h"
+
+#include "pgas_stream.h"
+
 #include "cmd.h"
 
 #define UNDEFINED_SIZE 2
-#define STREAM_DATA_SIZE (1024*32)
+#define CBOR_STREAM_DATA_SIZE (1024*32)
 
 #define PGA_COUNT_MAX	2
 #define IGA_COUNT_MAX	2
@@ -752,6 +763,11 @@ extern cmd_data189_t cmd_data189;
 extern cmd_data191_t cmd_data191;
 extern cmd_data192_t cmd_data192;
 extern cmd_data194_t cmd_data194;
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 

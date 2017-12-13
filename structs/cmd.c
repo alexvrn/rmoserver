@@ -1,6 +1,6 @@
 /*
  * GENERATED AUTOMATICALLY DO NOT FIX
- * 2017-11-29 16:45:19
+ * 2017-12-13 16:19:47
  */
 
 
@@ -11,6 +11,8 @@
 
 #include "cbor.h"
 
+#include "curl/curl.h"
+
 #include "types.h"
 
 #include "common.h"
@@ -20,10 +22,14 @@
 #include "cmd_data_packer.h"
 #include "cmd_handler.h"
 #include "cmd_data.h"
+#include "cbuf.h"
+
+#include "pgas_stream.h"
+
 #include "cmd.h"
 
 #define UNDEFINED_SIZE 2
-#define STREAM_DATA_SIZE (1024*32)
+#define CBOR_STREAM_DATA_SIZE (1024*32)
 
 cmd_t pgas_cmd[] = {
 	{"Перезагрузка программного обеспечения ПГАС/СКГП",

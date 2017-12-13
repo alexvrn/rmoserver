@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include "sensor_emulator.h"
 #include "signal_types.h"
+#include "common.h"
 
+/* SHP emulator */
 int
 shp_emulator(void* emulator_data, sensor_data_t** data) {
 	int ret = 0;
@@ -68,6 +70,35 @@ shp_handler(void* handler_data, sensor_data_t* sensor_data) {
 //		//sig->streamId,
 //		sig->timestamp);
 
+	return ret;
+}
+
+/* Stream emulator */
+int
+emu_stream_emulator(void* emulator_data, sensor_data_t** data) {
+	return 0;
+}
+
+int
+emu_stream_handler(void* handler_data, sensor_data_t* data) {
+	int ret = 0;
+	unsigned s_id;
+
+	if(!handler_data) {
+		ERROR
+		goto exit;
+	}
+	s_id = *((unsigned*)handler_data);
+
+	if(s_id >= PGAS_STREAM_MAX) {
+		ERROR
+		goto exit;
+	}
+
+	//printf("irq %d start\n", s_id);
+	pgas_stream[s_id].irq_handler(NULL, 0);
+	//printf("irq %d stop\n", s_id);
+exit:
 	return ret;
 }
 

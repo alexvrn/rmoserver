@@ -4,7 +4,6 @@
 // Qt
 #include <QObject>
 #include <QTimer>
-//#include <QNetworkAccessManager>
 
 // Http server
 #include <qhttpserver.h>
@@ -34,7 +33,6 @@ class HTTPServer : public QObject
     QTimer m_timer;
 
     QHttpServer* m_httpServer;
-    //QNetworkAccessManager* man;
     QList< QPair< QHttpRequest*, QHttpResponse* > > mmm;
 };
 

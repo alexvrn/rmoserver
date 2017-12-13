@@ -11,13 +11,6 @@
 #include <QDataStream>
 #include <QFile>
 
-// CBOR
-#include <cbor.h>
-
-// structs
-//#include <cmd_data.h>
-//#include <cmd_data_packer.c>
-
 const quint16 idMessage = 0xCAFE;
 
 Server::Server(QList< QPair<QString, int> > pgasServers, QObject *parent)

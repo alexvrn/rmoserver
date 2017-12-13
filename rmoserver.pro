@@ -9,6 +9,19 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
+SOURCES += main.cpp \
+    src/Server.cpp \
+    src/LocalServer.cpp \
+    src/HTTPServer.cpp \
+    qhttpserver/src/qhttpconnection.cpp \
+    qhttpserver/src/qhttprequest.cpp \
+    qhttpserver/src/qhttpresponse.cpp \
+    qhttpserver/src/qhttpserver.cpp \
+    qhttpserver/http-parser/http_parser.c \
+    riot_os_cbor/cbor.c \
+    structs/cmd_data_packer.c \
+    structs/cmd_data_debug.c
+
 HEADERS += \
     src/Server.h \
     src/LocalServer.h \
@@ -20,26 +33,9 @@ HEADERS += \
     qhttpserver/src/qhttpserverapi.h \
     qhttpserver/src/qhttpserverfwd.h \
     riot_os_cbor/cbor.h \
-    structs/cmd_data.h \
     structs/cmd_data_packer.h \
-    structs/cmd_data_debug.h \
-    structs/cmd_data_rnd.h \
+    structs/cmd_data_debug.h
     src/commandType.h
-
-SOURCES += main.cpp \
-    src/Server.cpp \
-    src/LocalServer.cpp \
-    src/HTTPServer.cpp \
-    qhttpserver/src/qhttpconnection.cpp \
-    qhttpserver/src/qhttprequest.cpp \
-    qhttpserver/src/qhttpresponse.cpp \
-    qhttpserver/src/qhttpserver.cpp \
-    qhttpserver/http-parser/http_parser.c \
-    riot_os_cbor/cbor.c \
-    structs/cmd_data.c \
-    structs/cmd_data_packer.c \
-    structs/cmd_data_debug.c \
-    structs/cmd_data_rnd.c
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

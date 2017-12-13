@@ -1,6 +1,6 @@
 /*
  * GENERATED AUTOMATICALLY DO NOT FIX
- * 2017-11-29 16:45:19
+ * 2017-12-13 16:19:47
  */
 
 
@@ -11,202 +11,35 @@
 
 #include "cbor.h"
 
+#include "curl/curl.h"
+
 #include "types.h"
 
 #include "common.h"
 #include "debug.h"
 #include "cmd_data_debug.h"
-#include "cmd_data_debug.c"
 #include "cmd_data_rnd.h"
 #include "cmd_data_packer.h"
 #include "cmd_handler.h"
 #include "cmd_data.h"
+#include "cbuf.h"
+
+#include "pgas_stream.h"
+
 #include "cmd.h"
 
 #define UNDEFINED_SIZE 2
-#define STREAM_DATA_SIZE (1024*32)
+#define CBOR_STREAM_DATA_SIZE (1024*32)
 
-cbor_stream_t stream_in = {NULL, 0, 0};
-unsigned char stream_out_data[STREAM_DATA_SIZE];
-cbor_stream_t stream_out = {stream_out_data, sizeof(stream_out_data), 0};
+cbor_stream_t cbor_stream_in = {NULL, 0, 0};
+unsigned char cbor_stream_out_data[CBOR_STREAM_DATA_SIZE];
+cbor_stream_t cbor_stream_out = {cbor_stream_out_data, sizeof(cbor_stream_out_data), 0};
 unsigned char* tmp_ptr;
 size_t tmp_len;
 
-int cmd_data0_pack(cbor_stream_t* stream, cmd_data0_t* cmd_data);
-int cmd_data0_unpack(cbor_stream_t* stream, size_t* offset, cmd_data0_t* cmd_data);
-int cmd_data2_pack(cbor_stream_t* stream, cmd_data2_t* cmd_data);
-int cmd_data2_unpack(cbor_stream_t* stream, size_t* offset, cmd_data2_t* cmd_data);
-int cmd_data5_pack(cbor_stream_t* stream, cmd_data5_t* cmd_data);
-int cmd_data5_unpack(cbor_stream_t* stream, size_t* offset, cmd_data5_t* cmd_data);
-int cmd_data8_pack(cbor_stream_t* stream, cmd_data8_t* cmd_data);
-int cmd_data8_unpack(cbor_stream_t* stream, size_t* offset, cmd_data8_t* cmd_data);
-int cmd_data10_pack(cbor_stream_t* stream, cmd_data10_t* cmd_data);
-int cmd_data10_unpack(cbor_stream_t* stream, size_t* offset, cmd_data10_t* cmd_data);
-int cmd_data12_pack(cbor_stream_t* stream, cmd_data12_t* cmd_data);
-int cmd_data12_unpack(cbor_stream_t* stream, size_t* offset, cmd_data12_t* cmd_data);
-int cmd_data16_pack(cbor_stream_t* stream, cmd_data16_t* cmd_data);
-int cmd_data16_unpack(cbor_stream_t* stream, size_t* offset, cmd_data16_t* cmd_data);
-int cmd_data19_pack(cbor_stream_t* stream, cmd_data19_t* cmd_data);
-int cmd_data19_unpack(cbor_stream_t* stream, size_t* offset, cmd_data19_t* cmd_data);
-int cmd_data21_pack(cbor_stream_t* stream, cmd_data21_t* cmd_data);
-int cmd_data21_unpack(cbor_stream_t* stream, size_t* offset, cmd_data21_t* cmd_data);
-int cmd_data24_pack(cbor_stream_t* stream, cmd_data24_t* cmd_data);
-int cmd_data24_unpack(cbor_stream_t* stream, size_t* offset, cmd_data24_t* cmd_data);
-int cmd_data28_pack(cbor_stream_t* stream, cmd_data28_t* cmd_data);
-int cmd_data28_unpack(cbor_stream_t* stream, size_t* offset, cmd_data28_t* cmd_data);
-int cmd_data30_pack(cbor_stream_t* stream, cmd_data30_t* cmd_data);
-int cmd_data30_unpack(cbor_stream_t* stream, size_t* offset, cmd_data30_t* cmd_data);
-int cmd_data31_pack(cbor_stream_t* stream, cmd_data31_t* cmd_data);
-int cmd_data31_unpack(cbor_stream_t* stream, size_t* offset, cmd_data31_t* cmd_data);
-int cmd_data32_pack(cbor_stream_t* stream, cmd_data32_t* cmd_data);
-int cmd_data32_unpack(cbor_stream_t* stream, size_t* offset, cmd_data32_t* cmd_data);
-int cmd_data36_pack(cbor_stream_t* stream, cmd_data36_t* cmd_data);
-int cmd_data36_unpack(cbor_stream_t* stream, size_t* offset, cmd_data36_t* cmd_data);
-int cmd_data38_pack(cbor_stream_t* stream, cmd_data38_t* cmd_data);
-int cmd_data38_unpack(cbor_stream_t* stream, size_t* offset, cmd_data38_t* cmd_data);
-int cmd_data39_pack(cbor_stream_t* stream, cmd_data39_t* cmd_data);
-int cmd_data39_unpack(cbor_stream_t* stream, size_t* offset, cmd_data39_t* cmd_data);
-int cmd_data40_pack(cbor_stream_t* stream, cmd_data40_t* cmd_data);
-int cmd_data40_unpack(cbor_stream_t* stream, size_t* offset, cmd_data40_t* cmd_data);
-int cmd_data43_pack(cbor_stream_t* stream, cmd_data43_t* cmd_data);
-int cmd_data43_unpack(cbor_stream_t* stream, size_t* offset, cmd_data43_t* cmd_data);
-int cmd_data47_pack(cbor_stream_t* stream, cmd_data47_t* cmd_data);
-int cmd_data47_unpack(cbor_stream_t* stream, size_t* offset, cmd_data47_t* cmd_data);
-int cmd_data49_pack(cbor_stream_t* stream, cmd_data49_t* cmd_data);
-int cmd_data49_unpack(cbor_stream_t* stream, size_t* offset, cmd_data49_t* cmd_data);
-int cmd_data50_pack(cbor_stream_t* stream, cmd_data50_t* cmd_data);
-int cmd_data50_unpack(cbor_stream_t* stream, size_t* offset, cmd_data50_t* cmd_data);
-int cmd_data54_pack(cbor_stream_t* stream, cmd_data54_t* cmd_data);
-int cmd_data54_unpack(cbor_stream_t* stream, size_t* offset, cmd_data54_t* cmd_data);
-int cmd_data58_pack(cbor_stream_t* stream, cmd_data58_t* cmd_data);
-int cmd_data58_unpack(cbor_stream_t* stream, size_t* offset, cmd_data58_t* cmd_data);
-int cmd_data60_pack(cbor_stream_t* stream, cmd_data60_t* cmd_data);
-int cmd_data60_unpack(cbor_stream_t* stream, size_t* offset, cmd_data60_t* cmd_data);
-int cmd_data61_pack(cbor_stream_t* stream, cmd_data61_t* cmd_data);
-int cmd_data61_unpack(cbor_stream_t* stream, size_t* offset, cmd_data61_t* cmd_data);
-int cmd_data65_pack(cbor_stream_t* stream, cmd_data65_t* cmd_data);
-int cmd_data65_unpack(cbor_stream_t* stream, size_t* offset, cmd_data65_t* cmd_data);
-int cmd_data69_pack(cbor_stream_t* stream, cmd_data69_t* cmd_data);
-int cmd_data69_unpack(cbor_stream_t* stream, size_t* offset, cmd_data69_t* cmd_data);
-int cmd_data71_pack(cbor_stream_t* stream, cmd_data71_t* cmd_data);
-int cmd_data71_unpack(cbor_stream_t* stream, size_t* offset, cmd_data71_t* cmd_data);
-int cmd_data78_pack(cbor_stream_t* stream, cmd_data78_t* cmd_data);
-int cmd_data78_unpack(cbor_stream_t* stream, size_t* offset, cmd_data78_t* cmd_data);
-int cmd_data82_pack(cbor_stream_t* stream, cmd_data82_t* cmd_data);
-int cmd_data82_unpack(cbor_stream_t* stream, size_t* offset, cmd_data82_t* cmd_data);
-int cmd_data86_pack(cbor_stream_t* stream, cmd_data86_t* cmd_data);
-int cmd_data86_unpack(cbor_stream_t* stream, size_t* offset, cmd_data86_t* cmd_data);
-int cmd_data89_pack(cbor_stream_t* stream, cmd_data89_t* cmd_data);
-int cmd_data89_unpack(cbor_stream_t* stream, size_t* offset, cmd_data89_t* cmd_data);
-int cmd_data92_pack(cbor_stream_t* stream, cmd_data92_t* cmd_data);
-int cmd_data92_unpack(cbor_stream_t* stream, size_t* offset, cmd_data92_t* cmd_data);
-int cmd_data95_pack(cbor_stream_t* stream, cmd_data95_t* cmd_data);
-int cmd_data95_unpack(cbor_stream_t* stream, size_t* offset, cmd_data95_t* cmd_data);
-int cmd_data96_pack(cbor_stream_t* stream, cmd_data96_t* cmd_data);
-int cmd_data96_unpack(cbor_stream_t* stream, size_t* offset, cmd_data96_t* cmd_data);
-int cmd_data99_pack(cbor_stream_t* stream, cmd_data99_t* cmd_data);
-int cmd_data99_unpack(cbor_stream_t* stream, size_t* offset, cmd_data99_t* cmd_data);
-int cmd_data101_pack(cbor_stream_t* stream, cmd_data101_t* cmd_data);
-int cmd_data101_unpack(cbor_stream_t* stream, size_t* offset, cmd_data101_t* cmd_data);
-int cmd_data102_pack(cbor_stream_t* stream, cmd_data102_t* cmd_data);
-int cmd_data102_unpack(cbor_stream_t* stream, size_t* offset, cmd_data102_t* cmd_data);
-int cmd_data104_pack(cbor_stream_t* stream, cmd_data104_t* cmd_data);
-int cmd_data104_unpack(cbor_stream_t* stream, size_t* offset, cmd_data104_t* cmd_data);
-int cmd_data107_pack(cbor_stream_t* stream, cmd_data107_t* cmd_data);
-int cmd_data107_unpack(cbor_stream_t* stream, size_t* offset, cmd_data107_t* cmd_data);
-int cmd_data110_pack(cbor_stream_t* stream, cmd_data110_t* cmd_data);
-int cmd_data110_unpack(cbor_stream_t* stream, size_t* offset, cmd_data110_t* cmd_data);
-int cmd_data111_pack(cbor_stream_t* stream, cmd_data111_t* cmd_data);
-int cmd_data111_unpack(cbor_stream_t* stream, size_t* offset, cmd_data111_t* cmd_data);
-int cmd_data114_pack(cbor_stream_t* stream, cmd_data114_t* cmd_data);
-int cmd_data114_unpack(cbor_stream_t* stream, size_t* offset, cmd_data114_t* cmd_data);
-int cmd_data117_pack(cbor_stream_t* stream, cmd_data117_t* cmd_data);
-int cmd_data117_unpack(cbor_stream_t* stream, size_t* offset, cmd_data117_t* cmd_data);
-int cmd_data118_pack(cbor_stream_t* stream, cmd_data118_t* cmd_data);
-int cmd_data118_unpack(cbor_stream_t* stream, size_t* offset, cmd_data118_t* cmd_data);
-int cmd_data121_pack(cbor_stream_t* stream, cmd_data121_t* cmd_data);
-int cmd_data121_unpack(cbor_stream_t* stream, size_t* offset, cmd_data121_t* cmd_data);
-int cmd_data124_pack(cbor_stream_t* stream, cmd_data124_t* cmd_data);
-int cmd_data124_unpack(cbor_stream_t* stream, size_t* offset, cmd_data124_t* cmd_data);
-int cmd_data125_pack(cbor_stream_t* stream, cmd_data125_t* cmd_data);
-int cmd_data125_unpack(cbor_stream_t* stream, size_t* offset, cmd_data125_t* cmd_data);
-int cmd_data129_pack(cbor_stream_t* stream, cmd_data129_t* cmd_data);
-int cmd_data129_unpack(cbor_stream_t* stream, size_t* offset, cmd_data129_t* cmd_data);
-int cmd_data130_pack(cbor_stream_t* stream, cmd_data130_t* cmd_data);
-int cmd_data130_unpack(cbor_stream_t* stream, size_t* offset, cmd_data130_t* cmd_data);
-int cmd_data132_pack(cbor_stream_t* stream, cmd_data132_t* cmd_data);
-int cmd_data132_unpack(cbor_stream_t* stream, size_t* offset, cmd_data132_t* cmd_data);
-int cmd_data135_pack(cbor_stream_t* stream, cmd_data135_t* cmd_data);
-int cmd_data135_unpack(cbor_stream_t* stream, size_t* offset, cmd_data135_t* cmd_data);
-int cmd_data136_pack(cbor_stream_t* stream, cmd_data136_t* cmd_data);
-int cmd_data136_unpack(cbor_stream_t* stream, size_t* offset, cmd_data136_t* cmd_data);
-int cmd_data140_pack(cbor_stream_t* stream, cmd_data140_t* cmd_data);
-int cmd_data140_unpack(cbor_stream_t* stream, size_t* offset, cmd_data140_t* cmd_data);
-int cmd_data142_pack(cbor_stream_t* stream, cmd_data142_t* cmd_data);
-int cmd_data142_unpack(cbor_stream_t* stream, size_t* offset, cmd_data142_t* cmd_data);
-int cmd_data143_pack(cbor_stream_t* stream, cmd_data143_t* cmd_data);
-int cmd_data143_unpack(cbor_stream_t* stream, size_t* offset, cmd_data143_t* cmd_data);
-int cmd_data145_pack(cbor_stream_t* stream, cmd_data145_t* cmd_data);
-int cmd_data145_unpack(cbor_stream_t* stream, size_t* offset, cmd_data145_t* cmd_data);
-int cmd_data146_pack(cbor_stream_t* stream, cmd_data146_t* cmd_data);
-int cmd_data146_unpack(cbor_stream_t* stream, size_t* offset, cmd_data146_t* cmd_data);
-int cmd_data147_pack(cbor_stream_t* stream, cmd_data147_t* cmd_data);
-int cmd_data147_unpack(cbor_stream_t* stream, size_t* offset, cmd_data147_t* cmd_data);
-int cmd_data151_pack(cbor_stream_t* stream, cmd_data151_t* cmd_data);
-int cmd_data151_unpack(cbor_stream_t* stream, size_t* offset, cmd_data151_t* cmd_data);
-int cmd_data152_pack(cbor_stream_t* stream, cmd_data152_t* cmd_data);
-int cmd_data152_unpack(cbor_stream_t* stream, size_t* offset, cmd_data152_t* cmd_data);
-int cmd_data154_pack(cbor_stream_t* stream, cmd_data154_t* cmd_data);
-int cmd_data154_unpack(cbor_stream_t* stream, size_t* offset, cmd_data154_t* cmd_data);
-int cmd_data155_pack(cbor_stream_t* stream, cmd_data155_t* cmd_data);
-int cmd_data155_unpack(cbor_stream_t* stream, size_t* offset, cmd_data155_t* cmd_data);
-int cmd_data156_pack(cbor_stream_t* stream, cmd_data156_t* cmd_data);
-int cmd_data156_unpack(cbor_stream_t* stream, size_t* offset, cmd_data156_t* cmd_data);
-int cmd_data160_pack(cbor_stream_t* stream, cmd_data160_t* cmd_data);
-int cmd_data160_unpack(cbor_stream_t* stream, size_t* offset, cmd_data160_t* cmd_data);
-int cmd_data161_pack(cbor_stream_t* stream, cmd_data161_t* cmd_data);
-int cmd_data161_unpack(cbor_stream_t* stream, size_t* offset, cmd_data161_t* cmd_data);
-int cmd_data163_pack(cbor_stream_t* stream, cmd_data163_t* cmd_data);
-int cmd_data163_unpack(cbor_stream_t* stream, size_t* offset, cmd_data163_t* cmd_data);
-int cmd_data165_pack(cbor_stream_t* stream, cmd_data165_t* cmd_data);
-int cmd_data165_unpack(cbor_stream_t* stream, size_t* offset, cmd_data165_t* cmd_data);
-int cmd_data168_pack(cbor_stream_t* stream, cmd_data168_t* cmd_data);
-int cmd_data168_unpack(cbor_stream_t* stream, size_t* offset, cmd_data168_t* cmd_data);
-int cmd_data172_pack(cbor_stream_t* stream, cmd_data172_t* cmd_data);
-int cmd_data172_unpack(cbor_stream_t* stream, size_t* offset, cmd_data172_t* cmd_data);
-int cmd_data174_pack(cbor_stream_t* stream, cmd_data174_t* cmd_data);
-int cmd_data174_unpack(cbor_stream_t* stream, size_t* offset, cmd_data174_t* cmd_data);
-int cmd_data175_pack(cbor_stream_t* stream, cmd_data175_t* cmd_data);
-int cmd_data175_unpack(cbor_stream_t* stream, size_t* offset, cmd_data175_t* cmd_data);
-int cmd_data176_pack(cbor_stream_t* stream, cmd_data176_t* cmd_data);
-int cmd_data176_unpack(cbor_stream_t* stream, size_t* offset, cmd_data176_t* cmd_data);
-int cmd_data177_pack(cbor_stream_t* stream, cmd_data177_t* cmd_data);
-int cmd_data177_unpack(cbor_stream_t* stream, size_t* offset, cmd_data177_t* cmd_data);
-int cmd_data178_pack(cbor_stream_t* stream, cmd_data178_t* cmd_data);
-int cmd_data178_unpack(cbor_stream_t* stream, size_t* offset, cmd_data178_t* cmd_data);
-int cmd_data179_pack(cbor_stream_t* stream, cmd_data179_t* cmd_data);
-int cmd_data179_unpack(cbor_stream_t* stream, size_t* offset, cmd_data179_t* cmd_data);
-int cmd_data180_pack(cbor_stream_t* stream, cmd_data180_t* cmd_data);
-int cmd_data180_unpack(cbor_stream_t* stream, size_t* offset, cmd_data180_t* cmd_data);
-int cmd_data181_pack(cbor_stream_t* stream, cmd_data181_t* cmd_data);
-int cmd_data181_unpack(cbor_stream_t* stream, size_t* offset, cmd_data181_t* cmd_data);
-int cmd_data182_pack(cbor_stream_t* stream, cmd_data182_t* cmd_data);
-int cmd_data182_unpack(cbor_stream_t* stream, size_t* offset, cmd_data182_t* cmd_data);
-int cmd_data183_pack(cbor_stream_t* stream, cmd_data183_t* cmd_data);
-int cmd_data183_unpack(cbor_stream_t* stream, size_t* offset, cmd_data183_t* cmd_data);
-int cmd_data187_pack(cbor_stream_t* stream, cmd_data187_t* cmd_data);
-int cmd_data187_unpack(cbor_stream_t* stream, size_t* offset, cmd_data187_t* cmd_data);
-int cmd_data189_pack(cbor_stream_t* stream, cmd_data189_t* cmd_data);
-int cmd_data189_unpack(cbor_stream_t* stream, size_t* offset, cmd_data189_t* cmd_data);
-int cmd_data191_pack(cbor_stream_t* stream, cmd_data191_t* cmd_data);
-int cmd_data191_unpack(cbor_stream_t* stream, size_t* offset, cmd_data191_t* cmd_data);
-int cmd_data192_pack(cbor_stream_t* stream, cmd_data192_t* cmd_data);
-int cmd_data192_unpack(cbor_stream_t* stream, size_t* offset, cmd_data192_t* cmd_data);
-int cmd_data194_pack(cbor_stream_t* stream, cmd_data194_t* cmd_data);
-int cmd_data194_unpack(cbor_stream_t* stream, size_t* offset, cmd_data194_t* cmd_data);
-
 int
-cmd_data0_pack(cbor_stream_t* stream, cmd_data0_t* cmd_data) {
+cmd_data0_pack(cbor_stream_t* stream, void* data) {
+	cmd_data0_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -217,11 +50,12 @@ cmd_data0_pack(cbor_stream_t* stream, cmd_data0_t* cmd_data) {
 	cmd_data0_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data0_unpack(cbor_stream_t* stream, size_t* offset, cmd_data0_t* cmd_data) {
+cmd_data0_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data0_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -238,7 +72,8 @@ cmd_data0_unpack(cbor_stream_t* stream, size_t* offset, cmd_data0_t* cmd_data) {
 }
 
 int
-cmd_data2_pack(cbor_stream_t* stream, cmd_data2_t* cmd_data) {
+cmd_data2_pack(cbor_stream_t* stream, void* data) {
+	cmd_data2_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -250,11 +85,12 @@ cmd_data2_pack(cbor_stream_t* stream, cmd_data2_t* cmd_data) {
 	cmd_data2_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data2_unpack(cbor_stream_t* stream, size_t* offset, cmd_data2_t* cmd_data) {
+cmd_data2_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data2_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -276,7 +112,8 @@ cmd_data2_unpack(cbor_stream_t* stream, size_t* offset, cmd_data2_t* cmd_data) {
 }
 
 int
-cmd_data5_pack(cbor_stream_t* stream, cmd_data5_t* cmd_data) {
+cmd_data5_pack(cbor_stream_t* stream, void* data) {
+	cmd_data5_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -288,11 +125,12 @@ cmd_data5_pack(cbor_stream_t* stream, cmd_data5_t* cmd_data) {
 	cmd_data5_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data5_unpack(cbor_stream_t* stream, size_t* offset, cmd_data5_t* cmd_data) {
+cmd_data5_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data5_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -314,7 +152,8 @@ cmd_data5_unpack(cbor_stream_t* stream, size_t* offset, cmd_data5_t* cmd_data) {
 }
 
 int
-cmd_data8_pack(cbor_stream_t* stream, cmd_data8_t* cmd_data) {
+cmd_data8_pack(cbor_stream_t* stream, void* data) {
+	cmd_data8_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -327,11 +166,12 @@ cmd_data8_pack(cbor_stream_t* stream, cmd_data8_t* cmd_data) {
 	cmd_data8_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data8_unpack(cbor_stream_t* stream, size_t* offset, cmd_data8_t* cmd_data) {
+cmd_data8_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data8_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -358,25 +198,27 @@ cmd_data8_unpack(cbor_stream_t* stream, size_t* offset, cmd_data8_t* cmd_data) {
 }
 
 int
-cmd_data10_pack(cbor_stream_t* stream, cmd_data10_t* cmd_data) {
+cmd_data10_pack(cbor_stream_t* stream, void* data) {
+	cmd_data10_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_float(stream, cmd_data->timestamp);
-	cmd_data175_pack(stream, &cmd_data->diagData);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data175_pack(stream, (void*)&cmd_data->diagData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data10_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data10_unpack(cbor_stream_t* stream, size_t* offset, cmd_data10_t* cmd_data) {
+cmd_data10_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data10_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -400,7 +242,8 @@ cmd_data10_unpack(cbor_stream_t* stream, size_t* offset, cmd_data10_t* cmd_data)
 }
 
 int
-cmd_data12_pack(cbor_stream_t* stream, cmd_data12_t* cmd_data) {
+cmd_data12_pack(cbor_stream_t* stream, void* data) {
+	cmd_data12_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -413,11 +256,12 @@ cmd_data12_pack(cbor_stream_t* stream, cmd_data12_t* cmd_data) {
 	cmd_data12_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data12_unpack(cbor_stream_t* stream, size_t* offset, cmd_data12_t* cmd_data) {
+cmd_data12_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data12_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -444,7 +288,8 @@ cmd_data12_unpack(cbor_stream_t* stream, size_t* offset, cmd_data12_t* cmd_data)
 }
 
 int
-cmd_data16_pack(cbor_stream_t* stream, cmd_data16_t* cmd_data) {
+cmd_data16_pack(cbor_stream_t* stream, void* data) {
+	cmd_data16_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -455,11 +300,12 @@ cmd_data16_pack(cbor_stream_t* stream, cmd_data16_t* cmd_data) {
 	cmd_data16_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data16_unpack(cbor_stream_t* stream, size_t* offset, cmd_data16_t* cmd_data) {
+cmd_data16_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data16_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -476,7 +322,8 @@ cmd_data16_unpack(cbor_stream_t* stream, size_t* offset, cmd_data16_t* cmd_data)
 }
 
 int
-cmd_data19_pack(cbor_stream_t* stream, cmd_data19_t* cmd_data) {
+cmd_data19_pack(cbor_stream_t* stream, void* data) {
+	cmd_data19_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -487,11 +334,12 @@ cmd_data19_pack(cbor_stream_t* stream, cmd_data19_t* cmd_data) {
 	cmd_data19_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data19_unpack(cbor_stream_t* stream, size_t* offset, cmd_data19_t* cmd_data) {
+cmd_data19_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data19_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -504,7 +352,8 @@ cmd_data19_unpack(cbor_stream_t* stream, size_t* offset, cmd_data19_t* cmd_data)
 }
 
 int
-cmd_data21_pack(cbor_stream_t* stream, cmd_data21_t* cmd_data) {
+cmd_data21_pack(cbor_stream_t* stream, void* data) {
+	cmd_data21_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -515,11 +364,12 @@ cmd_data21_pack(cbor_stream_t* stream, cmd_data21_t* cmd_data) {
 	cmd_data21_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data21_unpack(cbor_stream_t* stream, size_t* offset, cmd_data21_t* cmd_data) {
+cmd_data21_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data21_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -532,7 +382,8 @@ cmd_data21_unpack(cbor_stream_t* stream, size_t* offset, cmd_data21_t* cmd_data)
 }
 
 int
-cmd_data24_pack(cbor_stream_t* stream, cmd_data24_t* cmd_data) {
+cmd_data24_pack(cbor_stream_t* stream, void* data) {
+	cmd_data24_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -546,11 +397,12 @@ cmd_data24_pack(cbor_stream_t* stream, cmd_data24_t* cmd_data) {
 	cmd_data24_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data24_unpack(cbor_stream_t* stream, size_t* offset, cmd_data24_t* cmd_data) {
+cmd_data24_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data24_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -572,7 +424,8 @@ cmd_data24_unpack(cbor_stream_t* stream, size_t* offset, cmd_data24_t* cmd_data)
 }
 
 int
-cmd_data28_pack(cbor_stream_t* stream, cmd_data28_t* cmd_data) {
+cmd_data28_pack(cbor_stream_t* stream, void* data) {
+	cmd_data28_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -586,11 +439,12 @@ cmd_data28_pack(cbor_stream_t* stream, cmd_data28_t* cmd_data) {
 	cmd_data28_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data28_unpack(cbor_stream_t* stream, size_t* offset, cmd_data28_t* cmd_data) {
+cmd_data28_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data28_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -612,15 +466,16 @@ cmd_data28_unpack(cbor_stream_t* stream, size_t* offset, cmd_data28_t* cmd_data)
 }
 
 int
-cmd_data30_pack(cbor_stream_t* stream, cmd_data30_t* cmd_data) {
+cmd_data30_pack(cbor_stream_t* stream, void* data) {
+	cmd_data30_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
-	cmd_data31_pack(stream, &cmd_data->beta);
+	cmd_data31_pack(stream, (void*)&cmd_data->beta);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<24;++i)
-		cmd_data32_pack(stream, &cmd_data->soundVelocity[i]);
+		cmd_data32_pack(stream, (void*)&cmd_data->soundVelocity[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->multipathTimeCoef);
 
@@ -628,11 +483,12 @@ cmd_data30_pack(cbor_stream_t* stream, cmd_data30_t* cmd_data) {
 	cmd_data30_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data30_unpack(cbor_stream_t* stream, size_t* offset, cmd_data30_t* cmd_data) {
+cmd_data30_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data30_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -660,7 +516,8 @@ cmd_data30_unpack(cbor_stream_t* stream, size_t* offset, cmd_data30_t* cmd_data)
 }
 
 int
-cmd_data31_pack(cbor_stream_t* stream, cmd_data31_t* cmd_data) {
+cmd_data31_pack(cbor_stream_t* stream, void* data) {
+	cmd_data31_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -673,11 +530,12 @@ cmd_data31_pack(cbor_stream_t* stream, cmd_data31_t* cmd_data) {
 	cmd_data31_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data31_unpack(cbor_stream_t* stream, size_t* offset, cmd_data31_t* cmd_data) {
+cmd_data31_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data31_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -692,7 +550,8 @@ cmd_data31_unpack(cbor_stream_t* stream, size_t* offset, cmd_data31_t* cmd_data)
 }
 
 int
-cmd_data32_pack(cbor_stream_t* stream, cmd_data32_t* cmd_data) {
+cmd_data32_pack(cbor_stream_t* stream, void* data) {
+	cmd_data32_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -704,11 +563,12 @@ cmd_data32_pack(cbor_stream_t* stream, cmd_data32_t* cmd_data) {
 	cmd_data32_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data32_unpack(cbor_stream_t* stream, size_t* offset, cmd_data32_t* cmd_data) {
+cmd_data32_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data32_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -722,15 +582,16 @@ cmd_data32_unpack(cbor_stream_t* stream, size_t* offset, cmd_data32_t* cmd_data)
 }
 
 int
-cmd_data36_pack(cbor_stream_t* stream, cmd_data36_t* cmd_data) {
+cmd_data36_pack(cbor_stream_t* stream, void* data) {
+	cmd_data36_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
-	cmd_data31_pack(stream, &cmd_data->beta);
+	cmd_data31_pack(stream, (void*)&cmd_data->beta);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<24;++i)
-		cmd_data32_pack(stream, &cmd_data->soundVelocity[i]);
+		cmd_data32_pack(stream, (void*)&cmd_data->soundVelocity[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->multipathTimeCoef);
 
@@ -738,11 +599,12 @@ cmd_data36_pack(cbor_stream_t* stream, cmd_data36_t* cmd_data) {
 	cmd_data36_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data36_unpack(cbor_stream_t* stream, size_t* offset, cmd_data36_t* cmd_data) {
+cmd_data36_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data36_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -770,14 +632,15 @@ cmd_data36_unpack(cbor_stream_t* stream, size_t* offset, cmd_data36_t* cmd_data)
 }
 
 int
-cmd_data38_pack(cbor_stream_t* stream, cmd_data38_t* cmd_data) {
+cmd_data38_pack(cbor_stream_t* stream, void* data) {
+	cmd_data38_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<200;++i)
-		cmd_data39_pack(stream, &cmd_data->schedule[i]);
+		cmd_data39_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->cutOff);
 
@@ -785,11 +648,12 @@ cmd_data38_pack(cbor_stream_t* stream, cmd_data38_t* cmd_data) {
 	cmd_data38_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data38_unpack(cbor_stream_t* stream, size_t* offset, cmd_data38_t* cmd_data) {
+cmd_data38_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data38_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -814,7 +678,8 @@ cmd_data38_unpack(cbor_stream_t* stream, size_t* offset, cmd_data38_t* cmd_data)
 }
 
 int
-cmd_data39_pack(cbor_stream_t* stream, cmd_data39_t* cmd_data) {
+cmd_data39_pack(cbor_stream_t* stream, void* data) {
+	cmd_data39_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -830,7 +695,7 @@ cmd_data39_pack(cbor_stream_t* stream, cmd_data39_t* cmd_data) {
 		cbor_serialize_int(stream, (int)cmd_data->emissionSectors[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->emissionLevel);
-	cmd_data40_pack(stream, &cmd_data->procParams);
+	cmd_data40_pack(stream, (void*)&cmd_data->procParams);
 	cbor_serialize_float(stream, cmd_data->detectionDelay);
 	cbor_serialize_float(stream, cmd_data->emitterRelativeBearing);
 	cbor_serialize_array_indefinite(stream);
@@ -842,11 +707,12 @@ cmd_data39_pack(cbor_stream_t* stream, cmd_data39_t* cmd_data) {
 	cmd_data39_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data39_unpack(cbor_stream_t* stream, size_t* offset, cmd_data39_t* cmd_data) {
+cmd_data39_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data39_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -892,7 +758,8 @@ cmd_data39_unpack(cbor_stream_t* stream, size_t* offset, cmd_data39_t* cmd_data)
 }
 
 int
-cmd_data40_pack(cbor_stream_t* stream, cmd_data40_t* cmd_data) {
+cmd_data40_pack(cbor_stream_t* stream, void* data) {
+	cmd_data40_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -906,11 +773,12 @@ cmd_data40_pack(cbor_stream_t* stream, cmd_data40_t* cmd_data) {
 	cmd_data40_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data40_unpack(cbor_stream_t* stream, size_t* offset, cmd_data40_t* cmd_data) {
+cmd_data40_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data40_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -926,25 +794,27 @@ cmd_data40_unpack(cbor_stream_t* stream, size_t* offset, cmd_data40_t* cmd_data)
 }
 
 int
-cmd_data43_pack(cbor_stream_t* stream, cmd_data43_t* cmd_data) {
+cmd_data43_pack(cbor_stream_t* stream, void* data) {
+	cmd_data43_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<200;++i)
-		cmd_data39_pack(stream, &cmd_data->schedule[i]);
+		cmd_data39_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data43_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data43_unpack(cbor_stream_t* stream, size_t* offset, cmd_data43_t* cmd_data) {
+cmd_data43_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data43_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -968,25 +838,27 @@ cmd_data43_unpack(cbor_stream_t* stream, size_t* offset, cmd_data43_t* cmd_data)
 }
 
 int
-cmd_data47_pack(cbor_stream_t* stream, cmd_data47_t* cmd_data) {
+cmd_data47_pack(cbor_stream_t* stream, void* data) {
+	cmd_data47_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<200;++i)
-		cmd_data39_pack(stream, &cmd_data->schedule[i]);
+		cmd_data39_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data47_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data47_unpack(cbor_stream_t* stream, size_t* offset, cmd_data47_t* cmd_data) {
+cmd_data47_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data47_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1010,14 +882,15 @@ cmd_data47_unpack(cbor_stream_t* stream, size_t* offset, cmd_data47_t* cmd_data)
 }
 
 int
-cmd_data49_pack(cbor_stream_t* stream, cmd_data49_t* cmd_data) {
+cmd_data49_pack(cbor_stream_t* stream, void* data) {
+	cmd_data49_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<50;++i)
-		cmd_data50_pack(stream, &cmd_data->schedule[i]);
+		cmd_data50_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->cutOff);
 
@@ -1025,11 +898,12 @@ cmd_data49_pack(cbor_stream_t* stream, cmd_data49_t* cmd_data) {
 	cmd_data49_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data49_unpack(cbor_stream_t* stream, size_t* offset, cmd_data49_t* cmd_data) {
+cmd_data49_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data49_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1054,7 +928,8 @@ cmd_data49_unpack(cbor_stream_t* stream, size_t* offset, cmd_data49_t* cmd_data)
 }
 
 int
-cmd_data50_pack(cbor_stream_t* stream, cmd_data50_t* cmd_data) {
+cmd_data50_pack(cbor_stream_t* stream, void* data) {
+	cmd_data50_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1077,11 +952,12 @@ cmd_data50_pack(cbor_stream_t* stream, cmd_data50_t* cmd_data) {
 	cmd_data50_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data50_unpack(cbor_stream_t* stream, size_t* offset, cmd_data50_t* cmd_data) {
+cmd_data50_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data50_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1124,25 +1000,27 @@ cmd_data50_unpack(cbor_stream_t* stream, size_t* offset, cmd_data50_t* cmd_data)
 }
 
 int
-cmd_data54_pack(cbor_stream_t* stream, cmd_data54_t* cmd_data) {
+cmd_data54_pack(cbor_stream_t* stream, void* data) {
+	cmd_data54_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<50;++i)
-		cmd_data50_pack(stream, &cmd_data->schedule[i]);
+		cmd_data50_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data54_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data54_unpack(cbor_stream_t* stream, size_t* offset, cmd_data54_t* cmd_data) {
+cmd_data54_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data54_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1166,25 +1044,27 @@ cmd_data54_unpack(cbor_stream_t* stream, size_t* offset, cmd_data54_t* cmd_data)
 }
 
 int
-cmd_data58_pack(cbor_stream_t* stream, cmd_data58_t* cmd_data) {
+cmd_data58_pack(cbor_stream_t* stream, void* data) {
+	cmd_data58_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<50;++i)
-		cmd_data50_pack(stream, &cmd_data->schedule[i]);
+		cmd_data50_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data58_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data58_unpack(cbor_stream_t* stream, size_t* offset, cmd_data58_t* cmd_data) {
+cmd_data58_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data58_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1208,14 +1088,15 @@ cmd_data58_unpack(cbor_stream_t* stream, size_t* offset, cmd_data58_t* cmd_data)
 }
 
 int
-cmd_data60_pack(cbor_stream_t* stream, cmd_data60_t* cmd_data) {
+cmd_data60_pack(cbor_stream_t* stream, void* data) {
+	cmd_data60_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<200;++i)
-		cmd_data61_pack(stream, &cmd_data->schedule[i]);
+		cmd_data61_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->cutOff);
 
@@ -1223,11 +1104,12 @@ cmd_data60_pack(cbor_stream_t* stream, cmd_data60_t* cmd_data) {
 	cmd_data60_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data60_unpack(cbor_stream_t* stream, size_t* offset, cmd_data60_t* cmd_data) {
+cmd_data60_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data60_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1252,7 +1134,8 @@ cmd_data60_unpack(cbor_stream_t* stream, size_t* offset, cmd_data60_t* cmd_data)
 }
 
 int
-cmd_data61_pack(cbor_stream_t* stream, cmd_data61_t* cmd_data) {
+cmd_data61_pack(cbor_stream_t* stream, void* data) {
+	cmd_data61_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1263,11 +1146,12 @@ cmd_data61_pack(cbor_stream_t* stream, cmd_data61_t* cmd_data) {
 	cmd_data61_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data61_unpack(cbor_stream_t* stream, size_t* offset, cmd_data61_t* cmd_data) {
+cmd_data61_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data61_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1280,25 +1164,27 @@ cmd_data61_unpack(cbor_stream_t* stream, size_t* offset, cmd_data61_t* cmd_data)
 }
 
 int
-cmd_data65_pack(cbor_stream_t* stream, cmd_data65_t* cmd_data) {
+cmd_data65_pack(cbor_stream_t* stream, void* data) {
+	cmd_data65_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<200;++i)
-		cmd_data61_pack(stream, &cmd_data->schedule[i]);
+		cmd_data61_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data65_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data65_unpack(cbor_stream_t* stream, size_t* offset, cmd_data65_t* cmd_data) {
+cmd_data65_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data65_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1322,25 +1208,27 @@ cmd_data65_unpack(cbor_stream_t* stream, size_t* offset, cmd_data65_t* cmd_data)
 }
 
 int
-cmd_data69_pack(cbor_stream_t* stream, cmd_data69_t* cmd_data) {
+cmd_data69_pack(cbor_stream_t* stream, void* data) {
+	cmd_data69_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<200;++i)
-		cmd_data61_pack(stream, &cmd_data->schedule[i]);
+		cmd_data61_pack(stream, (void*)&cmd_data->schedule[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data69_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data69_unpack(cbor_stream_t* stream, size_t* offset, cmd_data69_t* cmd_data) {
+cmd_data69_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data69_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1364,7 +1252,8 @@ cmd_data69_unpack(cbor_stream_t* stream, size_t* offset, cmd_data69_t* cmd_data)
 }
 
 int
-cmd_data71_pack(cbor_stream_t* stream, cmd_data71_t* cmd_data) {
+cmd_data71_pack(cbor_stream_t* stream, void* data) {
+	cmd_data71_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1379,11 +1268,12 @@ cmd_data71_pack(cbor_stream_t* stream, cmd_data71_t* cmd_data) {
 	cmd_data71_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data71_unpack(cbor_stream_t* stream, size_t* offset, cmd_data71_t* cmd_data) {
+cmd_data71_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data71_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1406,7 +1296,8 @@ cmd_data71_unpack(cbor_stream_t* stream, size_t* offset, cmd_data71_t* cmd_data)
 }
 
 int
-cmd_data78_pack(cbor_stream_t* stream, cmd_data78_t* cmd_data) {
+cmd_data78_pack(cbor_stream_t* stream, void* data) {
+	cmd_data78_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1420,11 +1311,12 @@ cmd_data78_pack(cbor_stream_t* stream, cmd_data78_t* cmd_data) {
 	cmd_data78_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data78_unpack(cbor_stream_t* stream, size_t* offset, cmd_data78_t* cmd_data) {
+cmd_data78_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data78_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1444,7 +1336,8 @@ cmd_data78_unpack(cbor_stream_t* stream, size_t* offset, cmd_data78_t* cmd_data)
 }
 
 int
-cmd_data82_pack(cbor_stream_t* stream, cmd_data82_t* cmd_data) {
+cmd_data82_pack(cbor_stream_t* stream, void* data) {
+	cmd_data82_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1459,11 +1352,12 @@ cmd_data82_pack(cbor_stream_t* stream, cmd_data82_t* cmd_data) {
 	cmd_data82_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data82_unpack(cbor_stream_t* stream, size_t* offset, cmd_data82_t* cmd_data) {
+cmd_data82_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data82_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1480,7 +1374,8 @@ cmd_data82_unpack(cbor_stream_t* stream, size_t* offset, cmd_data82_t* cmd_data)
 }
 
 int
-cmd_data86_pack(cbor_stream_t* stream, cmd_data86_t* cmd_data) {
+cmd_data86_pack(cbor_stream_t* stream, void* data) {
+	cmd_data86_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1494,18 +1389,19 @@ cmd_data86_pack(cbor_stream_t* stream, cmd_data86_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data86_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data86_unpack(cbor_stream_t* stream, size_t* offset, cmd_data86_t* cmd_data) {
+cmd_data86_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data86_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1538,7 +1434,8 @@ cmd_data86_unpack(cbor_stream_t* stream, size_t* offset, cmd_data86_t* cmd_data)
 }
 
 int
-cmd_data89_pack(cbor_stream_t* stream, cmd_data89_t* cmd_data) {
+cmd_data89_pack(cbor_stream_t* stream, void* data) {
+	cmd_data89_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1552,18 +1449,19 @@ cmd_data89_pack(cbor_stream_t* stream, cmd_data89_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data89_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data89_unpack(cbor_stream_t* stream, size_t* offset, cmd_data89_t* cmd_data) {
+cmd_data89_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data89_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1596,7 +1494,8 @@ cmd_data89_unpack(cbor_stream_t* stream, size_t* offset, cmd_data89_t* cmd_data)
 }
 
 int
-cmd_data92_pack(cbor_stream_t* stream, cmd_data92_t* cmd_data) {
+cmd_data92_pack(cbor_stream_t* stream, void* data) {
+	cmd_data92_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1609,18 +1508,19 @@ cmd_data92_pack(cbor_stream_t* stream, cmd_data92_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data92_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data92_unpack(cbor_stream_t* stream, size_t* offset, cmd_data92_t* cmd_data) {
+cmd_data92_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data92_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1652,7 +1552,8 @@ cmd_data92_unpack(cbor_stream_t* stream, size_t* offset, cmd_data92_t* cmd_data)
 }
 
 int
-cmd_data95_pack(cbor_stream_t* stream, cmd_data95_t* cmd_data) {
+cmd_data95_pack(cbor_stream_t* stream, void* data) {
+	cmd_data95_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1665,20 +1566,21 @@ cmd_data95_pack(cbor_stream_t* stream, cmd_data95_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data96_pack(stream, &cmd_data->data[i]);
+		cmd_data96_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data95_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data95_unpack(cbor_stream_t* stream, size_t* offset, cmd_data95_t* cmd_data) {
+cmd_data95_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data95_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1716,7 +1618,8 @@ cmd_data95_unpack(cbor_stream_t* stream, size_t* offset, cmd_data95_t* cmd_data)
 }
 
 int
-cmd_data96_pack(cbor_stream_t* stream, cmd_data96_t* cmd_data) {
+cmd_data96_pack(cbor_stream_t* stream, void* data) {
+	cmd_data96_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1731,11 +1634,12 @@ cmd_data96_pack(cbor_stream_t* stream, cmd_data96_t* cmd_data) {
 	cmd_data96_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data96_unpack(cbor_stream_t* stream, size_t* offset, cmd_data96_t* cmd_data) {
+cmd_data96_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data96_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1756,7 +1660,8 @@ cmd_data96_unpack(cbor_stream_t* stream, size_t* offset, cmd_data96_t* cmd_data)
 }
 
 int
-cmd_data99_pack(cbor_stream_t* stream, cmd_data99_t* cmd_data) {
+cmd_data99_pack(cbor_stream_t* stream, void* data) {
+	cmd_data99_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1768,11 +1673,12 @@ cmd_data99_pack(cbor_stream_t* stream, cmd_data99_t* cmd_data) {
 	cmd_data99_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data99_unpack(cbor_stream_t* stream, size_t* offset, cmd_data99_t* cmd_data) {
+cmd_data99_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data99_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1786,25 +1692,27 @@ cmd_data99_unpack(cbor_stream_t* stream, size_t* offset, cmd_data99_t* cmd_data)
 }
 
 int
-cmd_data101_pack(cbor_stream_t* stream, cmd_data101_t* cmd_data) {
+cmd_data101_pack(cbor_stream_t* stream, void* data) {
+	cmd_data101_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data102_pack(stream, &cmd_data->marks[i]);
+		cmd_data102_pack(stream, (void*)&cmd_data->marks[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data101_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data101_unpack(cbor_stream_t* stream, size_t* offset, cmd_data101_t* cmd_data) {
+cmd_data101_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data101_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1828,7 +1736,8 @@ cmd_data101_unpack(cbor_stream_t* stream, size_t* offset, cmd_data101_t* cmd_dat
 }
 
 int
-cmd_data102_pack(cbor_stream_t* stream, cmd_data102_t* cmd_data) {
+cmd_data102_pack(cbor_stream_t* stream, void* data) {
+	cmd_data102_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1838,18 +1747,19 @@ cmd_data102_pack(cbor_stream_t* stream, cmd_data102_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data96_pack(stream, &cmd_data->data[i]);
+		cmd_data96_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data102_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data102_unpack(cbor_stream_t* stream, size_t* offset, cmd_data102_t* cmd_data) {
+cmd_data102_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data102_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -1876,7 +1786,8 @@ cmd_data102_unpack(cbor_stream_t* stream, size_t* offset, cmd_data102_t* cmd_dat
 }
 
 int
-cmd_data104_pack(cbor_stream_t* stream, cmd_data104_t* cmd_data) {
+cmd_data104_pack(cbor_stream_t* stream, void* data) {
+	cmd_data104_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1887,7 +1798,7 @@ cmd_data104_pack(cbor_stream_t* stream, cmd_data104_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_float(stream, cmd_data->relativeBearing);
 	cbor_serialize_float(stream, cmd_data->relativeBearingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
@@ -1896,11 +1807,12 @@ cmd_data104_pack(cbor_stream_t* stream, cmd_data104_t* cmd_data) {
 	cmd_data104_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data104_unpack(cbor_stream_t* stream, size_t* offset, cmd_data104_t* cmd_data) {
+cmd_data104_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data104_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1932,7 +1844,8 @@ cmd_data104_unpack(cbor_stream_t* stream, size_t* offset, cmd_data104_t* cmd_dat
 }
 
 int
-cmd_data107_pack(cbor_stream_t* stream, cmd_data107_t* cmd_data) {
+cmd_data107_pack(cbor_stream_t* stream, void* data) {
+	cmd_data107_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1945,7 +1858,7 @@ cmd_data107_pack(cbor_stream_t* stream, cmd_data107_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_float(stream, cmd_data->relativeBearing);
 	cbor_serialize_float(stream, cmd_data->relativeBearingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
@@ -1954,11 +1867,12 @@ cmd_data107_pack(cbor_stream_t* stream, cmd_data107_t* cmd_data) {
 	cmd_data107_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data107_unpack(cbor_stream_t* stream, size_t* offset, cmd_data107_t* cmd_data) {
+cmd_data107_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data107_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -1992,7 +1906,8 @@ cmd_data107_unpack(cbor_stream_t* stream, size_t* offset, cmd_data107_t* cmd_dat
 }
 
 int
-cmd_data110_pack(cbor_stream_t* stream, cmd_data110_t* cmd_data) {
+cmd_data110_pack(cbor_stream_t* stream, void* data) {
+	cmd_data110_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2003,9 +1918,9 @@ cmd_data110_pack(cbor_stream_t* stream, cmd_data110_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data111_pack(stream, &cmd_data->data[i]);
+		cmd_data111_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_float(stream, cmd_data->relativeBearing);
 	cbor_serialize_float(stream, cmd_data->relativeBearingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
@@ -2014,11 +1929,12 @@ cmd_data110_pack(cbor_stream_t* stream, cmd_data110_t* cmd_data) {
 	cmd_data110_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data110_unpack(cbor_stream_t* stream, size_t* offset, cmd_data110_t* cmd_data) {
+cmd_data110_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data110_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2056,7 +1972,8 @@ cmd_data110_unpack(cbor_stream_t* stream, size_t* offset, cmd_data110_t* cmd_dat
 }
 
 int
-cmd_data111_pack(cbor_stream_t* stream, cmd_data111_t* cmd_data) {
+cmd_data111_pack(cbor_stream_t* stream, void* data) {
+	cmd_data111_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2068,11 +1985,12 @@ cmd_data111_pack(cbor_stream_t* stream, cmd_data111_t* cmd_data) {
 	cmd_data111_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data111_unpack(cbor_stream_t* stream, size_t* offset, cmd_data111_t* cmd_data) {
+cmd_data111_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data111_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2086,7 +2004,8 @@ cmd_data111_unpack(cbor_stream_t* stream, size_t* offset, cmd_data111_t* cmd_dat
 }
 
 int
-cmd_data114_pack(cbor_stream_t* stream, cmd_data114_t* cmd_data) {
+cmd_data114_pack(cbor_stream_t* stream, void* data) {
+	cmd_data114_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2099,7 +2018,7 @@ cmd_data114_pack(cbor_stream_t* stream, cmd_data114_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_float(stream, cmd_data->relativeBearing);
 	cbor_serialize_float(stream, cmd_data->relativeBearingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
@@ -2108,11 +2027,12 @@ cmd_data114_pack(cbor_stream_t* stream, cmd_data114_t* cmd_data) {
 	cmd_data114_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data114_unpack(cbor_stream_t* stream, size_t* offset, cmd_data114_t* cmd_data) {
+cmd_data114_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data114_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2146,7 +2066,8 @@ cmd_data114_unpack(cbor_stream_t* stream, size_t* offset, cmd_data114_t* cmd_dat
 }
 
 int
-cmd_data117_pack(cbor_stream_t* stream, cmd_data117_t* cmd_data) {
+cmd_data117_pack(cbor_stream_t* stream, void* data) {
+	cmd_data117_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2157,9 +2078,9 @@ cmd_data117_pack(cbor_stream_t* stream, cmd_data117_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data118_pack(stream, &cmd_data->data[i]);
+		cmd_data118_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_float(stream, cmd_data->relativeBearing);
 	cbor_serialize_float(stream, cmd_data->relativeBearingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
@@ -2168,11 +2089,12 @@ cmd_data117_pack(cbor_stream_t* stream, cmd_data117_t* cmd_data) {
 	cmd_data117_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data117_unpack(cbor_stream_t* stream, size_t* offset, cmd_data117_t* cmd_data) {
+cmd_data117_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data117_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2210,7 +2132,8 @@ cmd_data117_unpack(cbor_stream_t* stream, size_t* offset, cmd_data117_t* cmd_dat
 }
 
 int
-cmd_data118_pack(cbor_stream_t* stream, cmd_data118_t* cmd_data) {
+cmd_data118_pack(cbor_stream_t* stream, void* data) {
+	cmd_data118_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2222,11 +2145,12 @@ cmd_data118_pack(cbor_stream_t* stream, cmd_data118_t* cmd_data) {
 	cmd_data118_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data118_unpack(cbor_stream_t* stream, size_t* offset, cmd_data118_t* cmd_data) {
+cmd_data118_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data118_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2240,7 +2164,8 @@ cmd_data118_unpack(cbor_stream_t* stream, size_t* offset, cmd_data118_t* cmd_dat
 }
 
 int
-cmd_data121_pack(cbor_stream_t* stream, cmd_data121_t* cmd_data) {
+cmd_data121_pack(cbor_stream_t* stream, void* data) {
+	cmd_data121_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2258,11 +2183,12 @@ cmd_data121_pack(cbor_stream_t* stream, cmd_data121_t* cmd_data) {
 	cmd_data121_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data121_unpack(cbor_stream_t* stream, size_t* offset, cmd_data121_t* cmd_data) {
+cmd_data121_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data121_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2286,7 +2212,8 @@ cmd_data121_unpack(cbor_stream_t* stream, size_t* offset, cmd_data121_t* cmd_dat
 }
 
 int
-cmd_data124_pack(cbor_stream_t* stream, cmd_data124_t* cmd_data) {
+cmd_data124_pack(cbor_stream_t* stream, void* data) {
+	cmd_data124_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2298,20 +2225,21 @@ cmd_data124_pack(cbor_stream_t* stream, cmd_data124_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data125_pack(stream, &cmd_data->data[i]);
+		cmd_data125_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data124_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data124_unpack(cbor_stream_t* stream, size_t* offset, cmd_data124_t* cmd_data) {
+cmd_data124_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data124_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2352,7 +2280,8 @@ cmd_data124_unpack(cbor_stream_t* stream, size_t* offset, cmd_data124_t* cmd_dat
 }
 
 int
-cmd_data125_pack(cbor_stream_t* stream, cmd_data125_t* cmd_data) {
+cmd_data125_pack(cbor_stream_t* stream, void* data) {
+	cmd_data125_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2368,11 +2297,12 @@ cmd_data125_pack(cbor_stream_t* stream, cmd_data125_t* cmd_data) {
 	cmd_data125_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data125_unpack(cbor_stream_t* stream, size_t* offset, cmd_data125_t* cmd_data) {
+cmd_data125_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data125_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2394,25 +2324,27 @@ cmd_data125_unpack(cbor_stream_t* stream, size_t* offset, cmd_data125_t* cmd_dat
 }
 
 int
-cmd_data129_pack(cbor_stream_t* stream, cmd_data129_t* cmd_data) {
+cmd_data129_pack(cbor_stream_t* stream, void* data) {
+	cmd_data129_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data130_pack(stream, &cmd_data->marks[i]);
+		cmd_data130_pack(stream, (void*)&cmd_data->marks[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data129_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data129_unpack(cbor_stream_t* stream, size_t* offset, cmd_data129_t* cmd_data) {
+cmd_data129_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data129_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2436,7 +2368,8 @@ cmd_data129_unpack(cbor_stream_t* stream, size_t* offset, cmd_data129_t* cmd_dat
 }
 
 int
-cmd_data130_pack(cbor_stream_t* stream, cmd_data130_t* cmd_data) {
+cmd_data130_pack(cbor_stream_t* stream, void* data) {
+	cmd_data130_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2447,18 +2380,19 @@ cmd_data130_pack(cbor_stream_t* stream, cmd_data130_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data125_pack(stream, &cmd_data->data[i]);
+		cmd_data125_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data130_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data130_unpack(cbor_stream_t* stream, size_t* offset, cmd_data130_t* cmd_data) {
+cmd_data130_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data130_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2490,7 +2424,8 @@ cmd_data130_unpack(cbor_stream_t* stream, size_t* offset, cmd_data130_t* cmd_dat
 }
 
 int
-cmd_data132_pack(cbor_stream_t* stream, cmd_data132_t* cmd_data) {
+cmd_data132_pack(cbor_stream_t* stream, void* data) {
+	cmd_data132_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2501,18 +2436,19 @@ cmd_data132_pack(cbor_stream_t* stream, cmd_data132_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
 	cbor_serialize_byte_stringl(stream, &cmd_data->data, 1);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data132_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data132_unpack(cbor_stream_t* stream, size_t* offset, cmd_data132_t* cmd_data) {
+cmd_data132_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data132_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2542,7 +2478,8 @@ cmd_data132_unpack(cbor_stream_t* stream, size_t* offset, cmd_data132_t* cmd_dat
 }
 
 int
-cmd_data135_pack(cbor_stream_t* stream, cmd_data135_t* cmd_data) {
+cmd_data135_pack(cbor_stream_t* stream, void* data) {
+	cmd_data135_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2551,19 +2488,20 @@ cmd_data135_pack(cbor_stream_t* stream, cmd_data135_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->timestamp);
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
-	cmd_data136_pack(stream, &cmd_data->data);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data136_pack(stream, (void*)&cmd_data->data);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data135_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data135_unpack(cbor_stream_t* stream, size_t* offset, cmd_data135_t* cmd_data) {
+cmd_data135_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data135_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2590,7 +2528,8 @@ cmd_data135_unpack(cbor_stream_t* stream, size_t* offset, cmd_data135_t* cmd_dat
 }
 
 int
-cmd_data136_pack(cbor_stream_t* stream, cmd_data136_t* cmd_data) {
+cmd_data136_pack(cbor_stream_t* stream, void* data) {
+	cmd_data136_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2609,11 +2548,12 @@ cmd_data136_pack(cbor_stream_t* stream, cmd_data136_t* cmd_data) {
 	cmd_data136_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data136_unpack(cbor_stream_t* stream, size_t* offset, cmd_data136_t* cmd_data) {
+cmd_data136_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data136_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2638,7 +2578,8 @@ cmd_data136_unpack(cbor_stream_t* stream, size_t* offset, cmd_data136_t* cmd_dat
 }
 
 int
-cmd_data140_pack(cbor_stream_t* stream, cmd_data140_t* cmd_data) {
+cmd_data140_pack(cbor_stream_t* stream, void* data) {
+	cmd_data140_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2650,11 +2591,12 @@ cmd_data140_pack(cbor_stream_t* stream, cmd_data140_t* cmd_data) {
 	cmd_data140_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data140_unpack(cbor_stream_t* stream, size_t* offset, cmd_data140_t* cmd_data) {
+cmd_data140_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data140_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2668,25 +2610,27 @@ cmd_data140_unpack(cbor_stream_t* stream, size_t* offset, cmd_data140_t* cmd_dat
 }
 
 int
-cmd_data142_pack(cbor_stream_t* stream, cmd_data142_t* cmd_data) {
+cmd_data142_pack(cbor_stream_t* stream, void* data) {
+	cmd_data142_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data143_pack(stream, &cmd_data->rxData[i]);
+		cmd_data143_pack(stream, (void*)&cmd_data->rxData[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data142_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data142_unpack(cbor_stream_t* stream, size_t* offset, cmd_data142_t* cmd_data) {
+cmd_data142_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data142_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2710,7 +2654,8 @@ cmd_data142_unpack(cbor_stream_t* stream, size_t* offset, cmd_data142_t* cmd_dat
 }
 
 int
-cmd_data143_pack(cbor_stream_t* stream, cmd_data143_t* cmd_data) {
+cmd_data143_pack(cbor_stream_t* stream, void* data) {
+	cmd_data143_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2718,17 +2663,18 @@ cmd_data143_pack(cbor_stream_t* stream, cmd_data143_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->timestamp);
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
-	cmd_data136_pack(stream, &cmd_data->data);
+	cmd_data136_pack(stream, (void*)&cmd_data->data);
 
 #ifdef DEBUG
 	cmd_data143_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data143_unpack(cbor_stream_t* stream, size_t* offset, cmd_data143_t* cmd_data) {
+cmd_data143_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data143_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2746,7 +2692,8 @@ cmd_data143_unpack(cbor_stream_t* stream, size_t* offset, cmd_data143_t* cmd_dat
 }
 
 int
-cmd_data145_pack(cbor_stream_t* stream, cmd_data145_t* cmd_data) {
+cmd_data145_pack(cbor_stream_t* stream, void* data) {
+	cmd_data145_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2756,19 +2703,20 @@ cmd_data145_pack(cbor_stream_t* stream, cmd_data145_t* cmd_data) {
 	cbor_serialize_byte_stringl(stream, &cmd_data->targetId, 1);
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
-	cmd_data146_pack(stream, &cmd_data->data);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data146_pack(stream, (void*)&cmd_data->data);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data145_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data145_unpack(cbor_stream_t* stream, size_t* offset, cmd_data145_t* cmd_data) {
+cmd_data145_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data145_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2800,7 +2748,8 @@ cmd_data145_unpack(cbor_stream_t* stream, size_t* offset, cmd_data145_t* cmd_dat
 }
 
 int
-cmd_data146_pack(cbor_stream_t* stream, cmd_data146_t* cmd_data) {
+cmd_data146_pack(cbor_stream_t* stream, void* data) {
+	cmd_data146_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2815,37 +2764,38 @@ cmd_data146_pack(cbor_stream_t* stream, cmd_data146_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->vRelStd);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data111_pack(stream, &cmd_data->cLines[i]);
+		cmd_data111_pack(stream, (void*)&cmd_data->cLines[i]);
 	cbor_write_break(stream);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data111_pack(stream, &cmd_data->pLines[i]);
+		cmd_data111_pack(stream, (void*)&cmd_data->pLines[i]);
 	cbor_write_break(stream);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data111_pack(stream, &cmd_data->rpLines[i]);
+		cmd_data111_pack(stream, (void*)&cmd_data->rpLines[i]);
 	cbor_write_break(stream);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data118_pack(stream, &cmd_data->acfLines[i]);
+		cmd_data118_pack(stream, (void*)&cmd_data->acfLines[i]);
 	cbor_write_break(stream);
 	cbor_serialize_float(stream, cmd_data->c1Prob);
 	cbor_serialize_float(stream, cmd_data->c2Prob);
 	cbor_serialize_int(stream, (int)cmd_data->class_);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data147_pack(stream, &cmd_data->frMarks[i]);
+		cmd_data147_pack(stream, (void*)&cmd_data->frMarks[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data146_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data146_unpack(cbor_stream_t* stream, size_t* offset, cmd_data146_t* cmd_data) {
+cmd_data146_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data146_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -2920,7 +2870,8 @@ cmd_data146_unpack(cbor_stream_t* stream, size_t* offset, cmd_data146_t* cmd_dat
 }
 
 int
-cmd_data147_pack(cbor_stream_t* stream, cmd_data147_t* cmd_data) {
+cmd_data147_pack(cbor_stream_t* stream, void* data) {
+	cmd_data147_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2937,11 +2888,12 @@ cmd_data147_pack(cbor_stream_t* stream, cmd_data147_t* cmd_data) {
 	cmd_data147_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data147_unpack(cbor_stream_t* stream, size_t* offset, cmd_data147_t* cmd_data) {
+cmd_data147_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data147_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -2960,25 +2912,27 @@ cmd_data147_unpack(cbor_stream_t* stream, size_t* offset, cmd_data147_t* cmd_dat
 }
 
 int
-cmd_data151_pack(cbor_stream_t* stream, cmd_data151_t* cmd_data) {
+cmd_data151_pack(cbor_stream_t* stream, void* data) {
+	cmd_data151_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<1;++i)
-		cmd_data152_pack(stream, &cmd_data->targets[i]);
+		cmd_data152_pack(stream, (void*)&cmd_data->targets[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data151_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data151_unpack(cbor_stream_t* stream, size_t* offset, cmd_data151_t* cmd_data) {
+cmd_data151_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data151_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3002,7 +2956,8 @@ cmd_data151_unpack(cbor_stream_t* stream, size_t* offset, cmd_data151_t* cmd_dat
 }
 
 int
-cmd_data152_pack(cbor_stream_t* stream, cmd_data152_t* cmd_data) {
+cmd_data152_pack(cbor_stream_t* stream, void* data) {
+	cmd_data152_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3011,17 +2966,18 @@ cmd_data152_pack(cbor_stream_t* stream, cmd_data152_t* cmd_data) {
 	cbor_serialize_byte_stringl(stream, &cmd_data->targetId, 1);
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
-	cmd_data146_pack(stream, &cmd_data->data);
+	cmd_data146_pack(stream, (void*)&cmd_data->data);
 
 #ifdef DEBUG
 	cmd_data152_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data152_unpack(cbor_stream_t* stream, size_t* offset, cmd_data152_t* cmd_data) {
+cmd_data152_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data152_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3044,7 +3000,8 @@ cmd_data152_unpack(cbor_stream_t* stream, size_t* offset, cmd_data152_t* cmd_dat
 }
 
 int
-cmd_data154_pack(cbor_stream_t* stream, cmd_data154_t* cmd_data) {
+cmd_data154_pack(cbor_stream_t* stream, void* data) {
+	cmd_data154_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3054,19 +3011,20 @@ cmd_data154_pack(cbor_stream_t* stream, cmd_data154_t* cmd_data) {
 	cbor_serialize_byte_stringl(stream, &cmd_data->targetId, 1);
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
-	cmd_data155_pack(stream, &cmd_data->data);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data155_pack(stream, (void*)&cmd_data->data);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data154_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data154_unpack(cbor_stream_t* stream, size_t* offset, cmd_data154_t* cmd_data) {
+cmd_data154_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data154_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3098,7 +3056,8 @@ cmd_data154_unpack(cbor_stream_t* stream, size_t* offset, cmd_data154_t* cmd_dat
 }
 
 int
-cmd_data155_pack(cbor_stream_t* stream, cmd_data155_t* cmd_data) {
+cmd_data155_pack(cbor_stream_t* stream, void* data) {
+	cmd_data155_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3114,17 +3073,18 @@ cmd_data155_pack(cbor_stream_t* stream, cmd_data155_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->c1Prob);
 	cbor_serialize_float(stream, cmd_data->c2Prob);
 	cbor_serialize_int(stream, (int)cmd_data->class_);
-	cmd_data156_pack(stream, &cmd_data->mark);
+	cmd_data156_pack(stream, (void*)&cmd_data->mark);
 
 #ifdef DEBUG
 	cmd_data155_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data155_unpack(cbor_stream_t* stream, size_t* offset, cmd_data155_t* cmd_data) {
+cmd_data155_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data155_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3150,7 +3110,8 @@ cmd_data155_unpack(cbor_stream_t* stream, size_t* offset, cmd_data155_t* cmd_dat
 }
 
 int
-cmd_data156_pack(cbor_stream_t* stream, cmd_data156_t* cmd_data) {
+cmd_data156_pack(cbor_stream_t* stream, void* data) {
+	cmd_data156_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3170,11 +3131,12 @@ cmd_data156_pack(cbor_stream_t* stream, cmd_data156_t* cmd_data) {
 	cmd_data156_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data156_unpack(cbor_stream_t* stream, size_t* offset, cmd_data156_t* cmd_data) {
+cmd_data156_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data156_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3200,25 +3162,27 @@ cmd_data156_unpack(cbor_stream_t* stream, size_t* offset, cmd_data156_t* cmd_dat
 }
 
 int
-cmd_data160_pack(cbor_stream_t* stream, cmd_data160_t* cmd_data) {
+cmd_data160_pack(cbor_stream_t* stream, void* data) {
+	cmd_data160_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<1;++i)
-		cmd_data161_pack(stream, &cmd_data->targets[i]);
+		cmd_data161_pack(stream, (void*)&cmd_data->targets[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data160_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data160_unpack(cbor_stream_t* stream, size_t* offset, cmd_data160_t* cmd_data) {
+cmd_data160_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data160_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3242,7 +3206,8 @@ cmd_data160_unpack(cbor_stream_t* stream, size_t* offset, cmd_data160_t* cmd_dat
 }
 
 int
-cmd_data161_pack(cbor_stream_t* stream, cmd_data161_t* cmd_data) {
+cmd_data161_pack(cbor_stream_t* stream, void* data) {
+	cmd_data161_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3251,17 +3216,18 @@ cmd_data161_pack(cbor_stream_t* stream, cmd_data161_t* cmd_data) {
 	cbor_serialize_byte_stringl(stream, &cmd_data->targetId, 1);
 	cbor_serialize_float(stream, cmd_data->heading);
 	cbor_serialize_float(stream, cmd_data->headingStd);
-	cmd_data155_pack(stream, &cmd_data->data);
+	cmd_data155_pack(stream, (void*)&cmd_data->data);
 
 #ifdef DEBUG
 	cmd_data161_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data161_unpack(cbor_stream_t* stream, size_t* offset, cmd_data161_t* cmd_data) {
+cmd_data161_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data161_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3284,25 +3250,27 @@ cmd_data161_unpack(cbor_stream_t* stream, size_t* offset, cmd_data161_t* cmd_dat
 }
 
 int
-cmd_data163_pack(cbor_stream_t* stream, cmd_data163_t* cmd_data) {
+cmd_data163_pack(cbor_stream_t* stream, void* data) {
+	cmd_data163_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<1;++i)
-		cmd_data165_pack(stream, &cmd_data->stream_id[i]);
+		cmd_data165_pack(stream, (void*)&cmd_data->stream_id[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data163_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data163_unpack(cbor_stream_t* stream, size_t* offset, cmd_data163_t* cmd_data) {
+cmd_data163_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data163_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3326,7 +3294,8 @@ cmd_data163_unpack(cbor_stream_t* stream, size_t* offset, cmd_data163_t* cmd_dat
 }
 
 int
-cmd_data165_pack(cbor_stream_t* stream, cmd_data165_t* cmd_data) {
+cmd_data165_pack(cbor_stream_t* stream, void* data) {
+	cmd_data165_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3340,11 +3309,12 @@ cmd_data165_pack(cbor_stream_t* stream, cmd_data165_t* cmd_data) {
 	cmd_data165_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data165_unpack(cbor_stream_t* stream, size_t* offset, cmd_data165_t* cmd_data) {
+cmd_data165_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data165_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3368,25 +3338,27 @@ cmd_data165_unpack(cbor_stream_t* stream, size_t* offset, cmd_data165_t* cmd_dat
 }
 
 int
-cmd_data168_pack(cbor_stream_t* stream, cmd_data168_t* cmd_data) {
+cmd_data168_pack(cbor_stream_t* stream, void* data) {
+	cmd_data168_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<1;++i)
-		cmd_data165_pack(stream, &cmd_data->stream_id[i]);
+		cmd_data165_pack(stream, (void*)&cmd_data->stream_id[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data168_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data168_unpack(cbor_stream_t* stream, size_t* offset, cmd_data168_t* cmd_data) {
+cmd_data168_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data168_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3410,25 +3382,27 @@ cmd_data168_unpack(cbor_stream_t* stream, size_t* offset, cmd_data168_t* cmd_dat
 }
 
 int
-cmd_data172_pack(cbor_stream_t* stream, cmd_data172_t* cmd_data) {
+cmd_data172_pack(cbor_stream_t* stream, void* data) {
+	cmd_data172_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<1;++i)
-		cmd_data165_pack(stream, &cmd_data->stream_id[i]);
+		cmd_data165_pack(stream, (void*)&cmd_data->stream_id[i]);
 	cbor_write_break(stream);
 
 #ifdef DEBUG
 	cmd_data172_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data172_unpack(cbor_stream_t* stream, size_t* offset, cmd_data172_t* cmd_data) {
+cmd_data172_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data172_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3452,26 +3426,28 @@ cmd_data172_unpack(cbor_stream_t* stream, size_t* offset, cmd_data172_t* cmd_dat
 }
 
 int
-cmd_data174_pack(cbor_stream_t* stream, cmd_data174_t* cmd_data) {
+cmd_data174_pack(cbor_stream_t* stream, void* data) {
+	cmd_data174_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_int(stream, (int)cmd_data->streamId);
 	cbor_serialize_float(stream, cmd_data->timestamp);
-	cmd_data175_pack(stream, &cmd_data->data);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data175_pack(stream, (void*)&cmd_data->data);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data174_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data174_unpack(cbor_stream_t* stream, size_t* offset, cmd_data174_t* cmd_data) {
+cmd_data174_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data174_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3496,19 +3472,20 @@ cmd_data174_unpack(cbor_stream_t* stream, size_t* offset, cmd_data174_t* cmd_dat
 }
 
 int
-cmd_data175_pack(cbor_stream_t* stream, cmd_data175_t* cmd_data) {
+cmd_data175_pack(cbor_stream_t* stream, void* data) {
+	cmd_data175_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
-	cmd_data176_pack(stream, &cmd_data->hsmDiag);
-	cmd_data177_pack(stream, &cmd_data->rxAntennaDiag);
-	cmd_data178_pack(stream, &cmd_data->txAntennaDiag);
-	cmd_data179_pack(stream, &cmd_data->utcsDiag);
-	cmd_data180_pack(stream, &cmd_data->satcomDiag);
-	cmd_data181_pack(stream, &cmd_data->batteryDiag);
-	cmd_data182_pack(stream, &cmd_data->foclDiag);
-	cmd_data183_pack(stream, &cmd_data->hpsDiag);
+	cmd_data176_pack(stream, (void*)&cmd_data->hsmDiag);
+	cmd_data177_pack(stream, (void*)&cmd_data->rxAntennaDiag);
+	cmd_data178_pack(stream, (void*)&cmd_data->txAntennaDiag);
+	cmd_data179_pack(stream, (void*)&cmd_data->utcsDiag);
+	cmd_data180_pack(stream, (void*)&cmd_data->satcomDiag);
+	cmd_data181_pack(stream, (void*)&cmd_data->batteryDiag);
+	cmd_data182_pack(stream, (void*)&cmd_data->foclDiag);
+	cmd_data183_pack(stream, (void*)&cmd_data->hpsDiag);
 	cbor_serialize_int(stream, (int)cmd_data->generalFault);
 	cbor_serialize_int(stream, (int)cmd_data->offlineMode);
 	cbor_serialize_int(stream, (int)cmd_data->uptime);
@@ -3517,11 +3494,12 @@ cmd_data175_pack(cbor_stream_t* stream, cmd_data175_t* cmd_data) {
 	cmd_data175_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data175_unpack(cbor_stream_t* stream, size_t* offset, cmd_data175_t* cmd_data) {
+cmd_data175_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data175_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3560,7 +3538,8 @@ cmd_data175_unpack(cbor_stream_t* stream, size_t* offset, cmd_data175_t* cmd_dat
 }
 
 int
-cmd_data176_pack(cbor_stream_t* stream, cmd_data176_t* cmd_data) {
+cmd_data176_pack(cbor_stream_t* stream, void* data) {
+	cmd_data176_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3574,11 +3553,12 @@ cmd_data176_pack(cbor_stream_t* stream, cmd_data176_t* cmd_data) {
 	cmd_data176_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data176_unpack(cbor_stream_t* stream, size_t* offset, cmd_data176_t* cmd_data) {
+cmd_data176_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data176_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3594,7 +3574,8 @@ cmd_data176_unpack(cbor_stream_t* stream, size_t* offset, cmd_data176_t* cmd_dat
 }
 
 int
-cmd_data177_pack(cbor_stream_t* stream, cmd_data177_t* cmd_data) {
+cmd_data177_pack(cbor_stream_t* stream, void* data) {
+	cmd_data177_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3607,11 +3588,12 @@ cmd_data177_pack(cbor_stream_t* stream, cmd_data177_t* cmd_data) {
 	cmd_data177_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data177_unpack(cbor_stream_t* stream, size_t* offset, cmd_data177_t* cmd_data) {
+cmd_data177_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data177_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3626,7 +3608,8 @@ cmd_data177_unpack(cbor_stream_t* stream, size_t* offset, cmd_data177_t* cmd_dat
 }
 
 int
-cmd_data178_pack(cbor_stream_t* stream, cmd_data178_t* cmd_data) {
+cmd_data178_pack(cbor_stream_t* stream, void* data) {
+	cmd_data178_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3650,11 +3633,12 @@ cmd_data178_pack(cbor_stream_t* stream, cmd_data178_t* cmd_data) {
 	cmd_data178_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data178_unpack(cbor_stream_t* stream, size_t* offset, cmd_data178_t* cmd_data) {
+cmd_data178_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data178_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3694,7 +3678,8 @@ cmd_data178_unpack(cbor_stream_t* stream, size_t* offset, cmd_data178_t* cmd_dat
 }
 
 int
-cmd_data179_pack(cbor_stream_t* stream, cmd_data179_t* cmd_data) {
+cmd_data179_pack(cbor_stream_t* stream, void* data) {
+	cmd_data179_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3706,11 +3691,12 @@ cmd_data179_pack(cbor_stream_t* stream, cmd_data179_t* cmd_data) {
 	cmd_data179_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data179_unpack(cbor_stream_t* stream, size_t* offset, cmd_data179_t* cmd_data) {
+cmd_data179_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data179_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3724,7 +3710,8 @@ cmd_data179_unpack(cbor_stream_t* stream, size_t* offset, cmd_data179_t* cmd_dat
 }
 
 int
-cmd_data180_pack(cbor_stream_t* stream, cmd_data180_t* cmd_data) {
+cmd_data180_pack(cbor_stream_t* stream, void* data) {
+	cmd_data180_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3736,11 +3723,12 @@ cmd_data180_pack(cbor_stream_t* stream, cmd_data180_t* cmd_data) {
 	cmd_data180_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data180_unpack(cbor_stream_t* stream, size_t* offset, cmd_data180_t* cmd_data) {
+cmd_data180_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data180_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3754,7 +3742,8 @@ cmd_data180_unpack(cbor_stream_t* stream, size_t* offset, cmd_data180_t* cmd_dat
 }
 
 int
-cmd_data181_pack(cbor_stream_t* stream, cmd_data181_t* cmd_data) {
+cmd_data181_pack(cbor_stream_t* stream, void* data) {
+	cmd_data181_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3765,11 +3754,12 @@ cmd_data181_pack(cbor_stream_t* stream, cmd_data181_t* cmd_data) {
 	cmd_data181_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data181_unpack(cbor_stream_t* stream, size_t* offset, cmd_data181_t* cmd_data) {
+cmd_data181_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data181_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3782,7 +3772,8 @@ cmd_data181_unpack(cbor_stream_t* stream, size_t* offset, cmd_data181_t* cmd_dat
 }
 
 int
-cmd_data182_pack(cbor_stream_t* stream, cmd_data182_t* cmd_data) {
+cmd_data182_pack(cbor_stream_t* stream, void* data) {
+	cmd_data182_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3794,11 +3785,12 @@ cmd_data182_pack(cbor_stream_t* stream, cmd_data182_t* cmd_data) {
 	cmd_data182_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data182_unpack(cbor_stream_t* stream, size_t* offset, cmd_data182_t* cmd_data) {
+cmd_data182_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data182_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3812,7 +3804,8 @@ cmd_data182_unpack(cbor_stream_t* stream, size_t* offset, cmd_data182_t* cmd_dat
 }
 
 int
-cmd_data183_pack(cbor_stream_t* stream, cmd_data183_t* cmd_data) {
+cmd_data183_pack(cbor_stream_t* stream, void* data) {
+	cmd_data183_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3834,11 +3827,12 @@ cmd_data183_pack(cbor_stream_t* stream, cmd_data183_t* cmd_data) {
 	cmd_data183_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data183_unpack(cbor_stream_t* stream, size_t* offset, cmd_data183_t* cmd_data) {
+cmd_data183_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data183_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3876,23 +3870,25 @@ cmd_data183_unpack(cbor_stream_t* stream, size_t* offset, cmd_data183_t* cmd_dat
 }
 
 int
-cmd_data187_pack(cbor_stream_t* stream, cmd_data187_t* cmd_data) {
+cmd_data187_pack(cbor_stream_t* stream, void* data) {
+	cmd_data187_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
 
 	cbor_serialize_float(stream, cmd_data->timestamp);
-	cmd_data175_pack(stream, &cmd_data->data);
+	cmd_data175_pack(stream, (void*)&cmd_data->data);
 
 #ifdef DEBUG
 	cmd_data187_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data187_unpack(cbor_stream_t* stream, size_t* offset, cmd_data187_t* cmd_data) {
+cmd_data187_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data187_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3908,7 +3904,8 @@ cmd_data187_unpack(cbor_stream_t* stream, size_t* offset, cmd_data187_t* cmd_dat
 }
 
 int
-cmd_data189_pack(cbor_stream_t* stream, cmd_data189_t* cmd_data) {
+cmd_data189_pack(cbor_stream_t* stream, void* data) {
+	cmd_data189_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3920,11 +3917,12 @@ cmd_data189_pack(cbor_stream_t* stream, cmd_data189_t* cmd_data) {
 	cmd_data189_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data189_unpack(cbor_stream_t* stream, size_t* offset, cmd_data189_t* cmd_data) {
+cmd_data189_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data189_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3942,7 +3940,8 @@ cmd_data189_unpack(cbor_stream_t* stream, size_t* offset, cmd_data189_t* cmd_dat
 }
 
 int
-cmd_data191_pack(cbor_stream_t* stream, cmd_data191_t* cmd_data) {
+cmd_data191_pack(cbor_stream_t* stream, void* data) {
+	cmd_data191_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -3950,20 +3949,21 @@ cmd_data191_pack(cbor_stream_t* stream, cmd_data191_t* cmd_data) {
 	cbor_serialize_float(stream, cmd_data->timestamp);
 	cbor_serialize_array_indefinite(stream);
 	for(int i=0; i<UNDEFINED_SIZE;++i)
-		cmd_data192_pack(stream, &cmd_data->data[i]);
+		cmd_data192_pack(stream, (void*)&cmd_data->data[i]);
 	cbor_write_break(stream);
-	cmd_data0_pack(stream, &cmd_data->serviceData);
+	cmd_data0_pack(stream, (void*)&cmd_data->serviceData);
 	cbor_serialize_byte_stringl(stream, &cmd_data->stationId, 1);
 
 #ifdef DEBUG
 	cmd_data191_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data191_unpack(cbor_stream_t* stream, size_t* offset, cmd_data191_t* cmd_data) {
+cmd_data191_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data191_t* cmd_data = data;
 	size_t i=0;
 
 	if(!stream) {
@@ -3996,7 +3996,8 @@ cmd_data191_unpack(cbor_stream_t* stream, size_t* offset, cmd_data191_t* cmd_dat
 }
 
 int
-cmd_data192_pack(cbor_stream_t* stream, cmd_data192_t* cmd_data) {
+cmd_data192_pack(cbor_stream_t* stream, void* data) {
+	cmd_data192_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -4010,11 +4011,12 @@ cmd_data192_pack(cbor_stream_t* stream, cmd_data192_t* cmd_data) {
 	cmd_data192_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data192_unpack(cbor_stream_t* stream, size_t* offset, cmd_data192_t* cmd_data) {
+cmd_data192_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data192_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -4030,7 +4032,8 @@ cmd_data192_unpack(cbor_stream_t* stream, size_t* offset, cmd_data192_t* cmd_dat
 }
 
 int
-cmd_data194_pack(cbor_stream_t* stream, cmd_data194_t* cmd_data) {
+cmd_data194_pack(cbor_stream_t* stream, void* data) {
+	cmd_data194_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
@@ -4043,11 +4046,12 @@ cmd_data194_pack(cbor_stream_t* stream, cmd_data194_t* cmd_data) {
 	cmd_data194_print(cmd_data);
 #endif
 
-	return stream_in.pos;
+	return stream->pos;
 }
 
 int
-cmd_data194_unpack(cbor_stream_t* stream, size_t* offset, cmd_data194_t* cmd_data) {
+cmd_data194_unpack(cbor_stream_t* stream, size_t* offset, void* data) {
+	cmd_data194_t* cmd_data = data;
 	if(!stream) {
 		return 0;
 	}
