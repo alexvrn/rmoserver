@@ -71,6 +71,7 @@ void LocalServer::newConnection()
   if (m_rmoSocket)
   {
     qWarning() << tr("Попытка подключить ещё одно РМО!");
+    m_localServer->nextPendingConnection()->disconnectFromServer;
     return;
   }
 
