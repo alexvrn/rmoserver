@@ -54,7 +54,7 @@ bool LocalServer::listen(const QString& name)
 {
   if (m_localServer->listen(name))
   {
-    qDebug() << tr("Локальный сервер запущен: rmoserver");
+    qDebug() << tr("Локальный сервер запущен: ") << name;
   }
   else
   {
@@ -71,7 +71,7 @@ void LocalServer::newConnection()
   if (m_rmoSocket)
   {
     qWarning() << tr("Попытка подключить ещё одно РМО!");
-    m_localServer->nextPendingConnection()->disconnectFromServer;
+    m_localServer->nextPendingConnection()->disconnectFromServer();
     return;
   }
 
@@ -208,7 +208,7 @@ void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
   // Отправка данных
   m_rmoSocket->write(package);
   if (!m_rmoSocket->waitForBytesWritten())
-    qWarning() << tr("Ошибка отправки данных!"); //! TODO: что тут делать?
+    qWarning() << tr("Ошибка отправки данных!") << m_rmoSocket->state(); //! TODO: что тут делать?
 }
 
 
