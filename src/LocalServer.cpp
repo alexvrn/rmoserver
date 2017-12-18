@@ -31,7 +31,7 @@ LocalServer::LocalServer(QObject *parent)
   // Подключение клиента РМО
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
 
-  QSettings settings("SAMI DVO RAN", "rmo");
+  QSettings settings("SAMI_DVO_RAN", "rmo");
   m_sourceDataPath = settings.value("sourceDataPath",
 #if defined(Q_OS_LINUX)
       "/tmp/rmoserver"

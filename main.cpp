@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
   QCoreApplication app(argc, argv);
 
-  app.setOrganizationName("SAMI DVO RAN");
+  app.setOrganizationName("SAMI_DVO_RAN");
   app.setOrganizationDomain("skbsami.ru");
   app.setApplicationName("rmo");
 
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   QLocale russianLocale(QLocale::Russian, QLocale::RussianFederation);
   QLocale::setDefault(russianLocale);
 
-  QSettings settings("SAMI DVO RAN", "rmo");
+  QSettings settings("SAMI_DVO_RAN", "rmo");
 
   // Читаем адреса серверов ПГАС
   QList<QPair<QString, int> > pgasServers;
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     return 0;
 
   LocalServer localServer;
-  if (!localServer.listen(settings.value("rmoServerName", "rmoServer").toString()))
+  if (!localServer.listen(settings.value("rmoServerName", "rmoserver").toString()))
     return 0;
 
   QObject::connect(&httpServer, &HTTPServer::pgasData, &localServer, &LocalServer::pgasData);
