@@ -37,7 +37,7 @@ bool HTTPServer::listen(int port)
   // let's go
   bool isListen = m_httpServer->listen(QHostAddress::Any, port);
   if (isListen)
-    qDebug() << tr("Http-server запущен: порт") << port;
+    qDebug() << tr("Http-server запущен: порт %1").arg(port);
   else
     qWarning() << tr("Ошибка запуска http server-а на порту") << port;
 

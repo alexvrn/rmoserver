@@ -54,11 +54,11 @@ bool LocalServer::listen(const QString& name)
 {
   if (m_localServer->listen(name))
   {
-    qDebug() << tr("Локальный сервер запущен: ") << name;
+    qDebug() << tr("Локальный сервер запущен: %1").arg(name);
   }
   else
   {
-    qWarning() << QString("Не удаётся запустить сервер: rmoserver %1").arg(m_localServer->errorString());
+    qWarning() << QString("Не удаётся запустить сервер: %1 %2").arg(name).arg(m_localServer->errorString());
     return false;
   }
 
