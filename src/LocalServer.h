@@ -31,6 +31,7 @@ class LocalServer : public QObject
 
   public slots:
     void pgasData(CommandType::Command cmd, const QByteArray& data);
+    void responseData(CommandType::Command cmd, const QByteArray& data);
 
   private slots:
     void newConnection();
@@ -51,7 +52,7 @@ class LocalServer : public QObject
     QTimer m_clearTimer;
 
     WaitState m_waitState;
-    quint16 m_messageType;
+    CommandType::Command m_command;
     quint32 m_messageLength;
 };
 

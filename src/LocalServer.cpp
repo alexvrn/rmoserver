@@ -25,7 +25,6 @@ LocalServer::LocalServer(QObject *parent)
   , m_localServer(new QLocalServer(this))
   , m_rmoSocket(nullptr)
   , m_waitState(WaitingId)
-  , m_messageType(-1)
   , m_messageLength(0)
 {
   // Подключение клиента РМО
@@ -93,9 +92,175 @@ void LocalServer::disconnected()
 
 void LocalServer::init()
 {
-  m_messageType = -1;
   m_messageLength = 0;
   m_waitState = WaitingId;
+}
+
+
+QVariantMap LocalServer::parseData(CommandType::Command cmd, const QByteArray& data) const
+{
+  QByteArray _d = data; //! TODO
+  size_t offset = 0;
+  cbor_stream_t cborStream = {reinterpret_cast<unsigned char*>(_d.data()), static_cast<size_t>(data.length()), 0};
+  switch (cmd)
+  {
+    case CommandType::Stream_1:
+    {
+      cmd_data86_t cmdData;
+      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+      QVariantMap vm;
+      vm["streamId"]    = cmdData.streamId;
+      vm["timestamp"]   = cmdData.timestamp;
+      vm["coefCount"]   = cmdData.coefCount;
+      vm["elemCount"]   = cmdData.elemCount;
+      vm["lowFreq"]     = cmdData.lowFreq;
+      vm["highFreq"]    = cmdData.highFreq;
+      vm["heading"]     = cmdData.heading;
+      vm["data"]        = cmdData.data;
+      vm["stationId"]   = cmdData.stationId;
+      vm["serviceData"] = QByteArray(cmdData.serviceData.data);
+      return vm;
+    }
+//    case CommandType::Stream_2:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+    case CommandType::Stream_3:
+    case CommandType::Stream_4:
+    {
+      cmd_data92_t cmdData;
+      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+      QVariantMap vm;
+      vm["streamId"]    = cmdData.streamId;
+      vm["timestamp"]   = cmdData.timestamp;
+      vm["beamCount"]   = cmdData.beamCount;
+      vm["lowFreq"]     = cmdData.lowFreq;
+      vm["highFreq"]    = cmdData.highFreq;
+      vm["heading"]     = cmdData.heading;
+      vm["headingStd"]  = cmdData.headingStd;
+      vm["data"]        = cmdData.data;
+      vm["stationId"]   = cmdData.stationId;
+      vm["serviceData"] = QByteArray(cmdData.serviceData.data);
+      //if (cmd == CommandType::Stream_4)
+      //  qDebug() << vm;
+      return vm;
+    }
+//    case CommandType::Stream_5:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_6:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_7:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_8:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_9:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//     return QVariantMap();
+//    }
+//    case CommandType::Stream_10:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_11:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_12:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_13:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_14:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_15:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_16:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_17:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//     return QVariantMap();
+//    }
+//    case CommandType::Stream_18:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_19:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_20:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_21:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_22:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+    default:
+    {
+      //qWarning() << tr("Неизвестный номер потока") << cmd;
+      return QVariantMap();
+    }
+  }
 }
 
 
@@ -114,8 +279,10 @@ void LocalServer::readyRead()
     quint16 id;
     auto data = m_rmoSocket->read(sizeof(quint16));
     QDataStream dataStream(&data, QIODevice::ReadOnly);
-    //! TODO: dataStream.setByteOrder(QDataStream::LittleEndian);
+    // dataStream.setVersion(QDataStream::Qt_5_9);
+    //dataStream.setByteOrder(QDataStream::LittleEndian);
     dataStream >> id;
+
     if (id != idMessage)
     {
       init();
@@ -134,8 +301,12 @@ void LocalServer::readyRead()
 
     auto data = m_rmoSocket->read(sizeof(quint16));
     QDataStream dataStream(&data, QIODevice::ReadOnly);
+    // dataStream.setVersion(QDataStream::Qt_5_9);
     //! TODO: dataStream.setByteOrder(QDataStream::LittleEndian);
-    dataStream >> m_messageType;
+
+    quint16 command;
+    dataStream >> command;
+    m_command = static_cast<CommandType::Command>(command);
 
     m_waitState = WaitingLength;
   }
@@ -146,8 +317,9 @@ void LocalServer::readyRead()
     if (m_rmoSocket->bytesAvailable() < (qint64)sizeof(quint32))
       return;
 
-    auto data = m_rmoSocket->read(sizeof(quint16));
+    auto data = m_rmoSocket->read(sizeof(quint32));
     QDataStream dataStream(&data, QIODevice::ReadOnly);
+    // dataStream.setVersion(QDataStream::Qt_5_9);
     //! TODO: dataStream.setByteOrder(QDataStream::LittleEndian);
     dataStream >> m_messageLength;
 
@@ -161,7 +333,11 @@ void LocalServer::readyRead()
       return;
 
     QByteArray message = m_rmoSocket->read(m_messageLength);
-    qDebug() << tr("Тип") << m_messageType << message.length();
+    // Запрос данных по дате\времени
+    if (m_command == CommandType::CMD_RequestData_DateTime)
+    {
+      //! TODO
+    }
     init();
   }
 }
@@ -195,6 +371,13 @@ void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
   if (!m_rmoSocket)
     return;
 
+  // Отправка данных
+  responseData(cmd, data);
+}
+
+
+void LocalServer::responseData(CommandType::Command cmd, const QByteArray& data)
+{
   // подготовка данных для записи
   QByteArray package;
   QDataStream out(&package, QIODevice::WriteOnly);
