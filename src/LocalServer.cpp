@@ -172,6 +172,10 @@ void LocalServer::readyRead()
       //! TODO
     }
     init();
+
+    // Проверяем оставшуюся часть сообщения (там тоже могут быть данные)
+    if (m_rmoSocket->bytesAvailable())
+      readyRead();
   }
 }
 
