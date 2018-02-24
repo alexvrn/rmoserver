@@ -7,7 +7,6 @@
 #include <QLocalSocket>
 #include <QSettings>
 #include <QDate>
-#include <QFile>
 #include <QDir>
 #include <QDataStream>
 
@@ -44,8 +43,17 @@ LocalServer::LocalServer(QObject *parent)
   if (!dir.mkpath(m_sourceDataPath))
     qWarning() << tr("Не удалось создать каталог для хранения файлов") << m_sourceDataPath;
 
+  opeFile();
+
   connect(&m_clearTimer, SIGNAL(timeout()), SLOT(clearTimer()));
   m_clearTimer.start(1000 * 60 * 60); // Запускаем таймер каждый час
+}
+
+
+LocalServer::~LocalServer()
+{
+  if (m_dat.isOpen())
+    m_dat.close();
 }
 
 
@@ -180,6 +188,22 @@ void LocalServer::readyRead()
 }
 
 
+bool LocalServer::opeFile()
+{
+  if (m_dat.isOpen())
+  {
+    qWarning() << tr("Попытка открыть уже открытый файл") << m_dat.fileName();
+    return false;
+  }
+
+  QString fileName = QString("%1%2%3%4").arg(m_sourceDataPath).arg(QDir::separator()).arg(QDate::currentDate().toString("ddMMyyyy")).arg(".dat");
+  m_dat.setFileName(fileName);
+  bool open = m_dat.open(QIODevice::Append);
+  if (!open)
+    qWarning() << tr("Ошибка открытия файла") << fileName;
+}
+
+
 void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
 {
   bool fromPgas = cmd >= CommandType::Stream_1 && cmd <= CommandType::Stream_22;
@@ -187,21 +211,17 @@ void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
   // Сохраняем данные в файле (название файла строится в соответствии с текущим днём ddMMyyyy)
   if (fromPgas)
   {
-    QString fileName = QString("%1%2%3%4").arg(m_sourceDataPath).arg(QDir::separator()).arg(QDate::currentDate().toString("ddMMyyyy")).arg(".dat");
-    QFile dat(fileName);
-    if (dat.open(QIODevice::Append))
+    if (!m_dat.isOpen())
     {
-      QDataStream out(&dat);
-      out.setVersion(QDataStream::Qt_5_9);
-      out << quint16(cmd);
-      out << quint32(data.length());
-      if (data.length())
-        out.writeRawData(data.data(), data.length());
+      qWarning() << tr("Файл не открыт для записи");
+      return;
     }
-    else
-    {
-      qWarning() << tr("Ошибка открытия файла") << fileName;
-    }
+    QDataStream out(&m_dat);
+    out.setVersion(QDataStream::Qt_5_9);
+    out << quint16(cmd);
+    out << quint32(data.length());
+    if (data.length())
+      out.writeRawData(data.data(), data.length());
   }
 
   // Посылаем данные клиенту GUI, если он подключен
@@ -228,7 +248,11 @@ void LocalServer::responseData(CommandType::Command cmd, const QByteArray& data)
   // Отправка данных
   m_rmoSocket->write(package);
   if (!m_rmoSocket->waitForBytesWritten())
-    qWarning() << tr("Ошибка отправки данных!") << m_rmoSocket->state(); //! TODO: что тут делать?
+  {
+    // Еще одна проверка не отключился ли клиент
+    if (m_rmoSocket)
+      qWarning() << tr("Ошибка отправки данных!") << m_rmoSocket->state(); //! TODO: что тут делать?
+  }
 }
 
 

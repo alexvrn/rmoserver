@@ -6,6 +6,7 @@
 class QLocalServer;
 class QLocalSocket;
 #include <QTimer>
+#include <QFile>
 
 // Local
 #include <commandType.h>
@@ -24,6 +25,7 @@ class LocalServer : public QObject
     };
 
     explicit LocalServer(QObject *parent = nullptr);
+    ~LocalServer();
 
     bool listen(const QString& name);
 
@@ -40,6 +42,9 @@ class LocalServer : public QObject
 
     void clearTimer();
 
+    //! Открытие файла для сохранения данных с сервера
+    bool opeFile();
+
   private:
     void init();
 
@@ -50,6 +55,8 @@ class LocalServer : public QObject
 
     // Таймер для очистки старых данных, в зависимости от параметров, заданных в конфиге
     QTimer m_clearTimer;
+
+    QFile m_dat;
 
     WaitState m_waitState;
     CommandType::Command m_command;
