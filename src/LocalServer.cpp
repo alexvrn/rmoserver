@@ -43,7 +43,7 @@ LocalServer::LocalServer(QObject *parent)
   if (!dir.mkpath(m_sourceDataPath))
     qWarning() << tr("Не удалось создать каталог для хранения файлов") << m_sourceDataPath;
 
-  opeFile();
+  openFile();
 
   connect(&m_clearTimer, SIGNAL(timeout()), SLOT(clearTimer()));
   m_clearTimer.start(1000 * 60 * 60); // Запускаем таймер каждый час
@@ -188,7 +188,7 @@ void LocalServer::readyRead()
 }
 
 
-bool LocalServer::opeFile()
+bool LocalServer::openFile()
 {
   if (m_dat.isOpen())
   {
@@ -211,6 +211,7 @@ void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
   // Сохраняем данные в файле (название файла строится в соответствии с текущим днём ddMMyyyy)
   if (fromPgas)
   {
+    //! FIXME: в полность создавать новый файл с новым именем
     if (!m_dat.isOpen())
     {
       qWarning() << tr("Файл не открыт для записи");

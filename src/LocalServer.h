@@ -43,7 +43,7 @@ class LocalServer : public QObject
     void clearTimer();
 
     //! Открытие файла для сохранения данных с сервера
-    bool opeFile();
+    bool openFile();
 
   private:
     void init();
