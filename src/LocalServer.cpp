@@ -30,6 +30,15 @@ LocalServer::LocalServer(QObject *parent)
   connect(m_localServer, SIGNAL(newConnection()), SLOT(newConnection()));
 
   QSettings settings("SAMI_DVO_RAN", "rmo");
+
+  // Читаем номера ПГАС
+  int size = settings.beginReadArray("PGAS");
+  for (int i = 0; i < size; ++i)
+  {
+    settings.setArrayIndex(i);
+    m_dataPGAS.insert(settings.value("number").toInt(), new QFile());
+  }
+
   m_sourceDataPath = settings.value("sourceDataPath",
 #if defined(Q_OS_LINUX)
       "/tmp/rmoserver"
@@ -52,8 +61,12 @@ LocalServer::LocalServer(QObject *parent)
 
 LocalServer::~LocalServer()
 {
-  if (m_dat.isOpen())
-    m_dat.close();
+  for (auto d : m_dataPGAS.values())
+  {
+    if (d->isOpen())
+      d->close();
+    delete d;
+  }
 }
 
 
@@ -102,6 +115,177 @@ void LocalServer::init()
 {
   m_messageLength = 0;
   m_waitState = WaitingId;
+}
+
+
+QVariantMap LocalServer::parseData(CommandType::Command cmd, const QByteArray& data) const
+{
+  QByteArray _d = data; //! TODO
+  size_t offset = 0;
+  cbor_stream_t cborStream = {reinterpret_cast<unsigned char*>(_d.data()), static_cast<size_t>(data.length()), 0};
+  switch (cmd)
+  {
+    case CommandType::Stream_1:
+    {
+      cmd_data86_t cmdData;
+      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+      QVariantMap vm;
+      vm["streamId"]    = cmdData.streamId;
+      vm["timestamp"]   = QDateTime::fromSecsSinceEpoch(cmdData.timestamp);
+      vm["coefCount"]   = cmdData.coefCount;
+      vm["elemCount"]   = cmdData.elemCount;
+      vm["lowFreq"]     = cmdData.lowFreq;
+      vm["highFreq"]    = cmdData.highFreq;
+      vm["heading"]     = cmdData.heading;
+      vm["data"]        = cmdData.data;
+      vm["stationId"]   = cmdData.stationId;
+      vm["serviceData"] = QByteArray(cmdData.serviceData.data);
+      return vm;
+    }
+//    case CommandType::Stream_2:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+    case CommandType::Stream_3:
+    case CommandType::Stream_4:
+    {
+      cmd_data92_t cmdData;
+      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+      QVariantMap vm;
+      vm["streamId"]    = cmdData.streamId;
+      vm["timestamp"]   = QDateTime::fromSecsSinceEpoch(cmdData.timestamp);
+      vm["beamCount"]   = cmdData.beamCount;
+      vm["lowFreq"]     = cmdData.lowFreq;
+      vm["highFreq"]    = cmdData.highFreq;
+      vm["heading"]     = cmdData.heading;
+      vm["headingStd"]  = cmdData.headingStd;
+      vm["data"]        = cmdData.data;
+      vm["stationId"]   = cmdData.stationId;
+      vm["serviceData"] = QByteArray(cmdData.serviceData.data);
+      if (cmd == CommandType::Stream_4)
+      {
+        //uint timestamp = vm["timestamp"].toUInt();
+        //QDateTime dt = QDateTime::fromSecsSinceEpoch(timestamp);
+        //qDebug() << vm["beamCount"] << dt;
+      }
+      return vm;
+    }
+//    case CommandType::Stream_5:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_6:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_7:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_8:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_9:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//     return QVariantMap();
+//    }
+//    case CommandType::Stream_10:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_11:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_12:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_13:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_14:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_15:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_16:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_17:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//     return QVariantMap();
+//    }
+//    case CommandType::Stream_18:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_19:
+//    {
+//      cmd_data86_t cmdData;
+//      cmd_data86_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_20:
+//    {
+//      cmd_data89_t cmdData;
+//      cmd_data89_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_21:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+//    case CommandType::Stream_22:
+//    {
+//      cmd_data92_t cmdData;
+//      cmd_data92_unpack(&cborStream, &offset, &cmdData);
+//      return QVariantMap();
+//    }
+    default:
+    {
+      //qWarning() << tr("Неизвестный номер потока") << cmd;
+      return QVariantMap();
+    }
+  }
 }
 
 
@@ -190,17 +374,25 @@ void LocalServer::readyRead()
 
 bool LocalServer::openFile()
 {
-  if (m_dat.isOpen())
+  QMap<int, QFile*>::iterator d = m_dataPGAS.begin();
+  while (d != m_dataPGAS.end())
   {
-    qWarning() << tr("Попытка открыть уже открытый файл") << m_dat.fileName();
-    return false;
-  }
+    if (d.value()->isOpen())
+    {
+      qWarning() << tr("Попытка открыть уже открытый файл") << d.value()->fileName();
+      return false;
+    }
 
-  QString fileName = QString("%1%2%3%4").arg(m_sourceDataPath).arg(QDir::separator()).arg(QDate::currentDate().toString("ddMMyyyy")).arg(".dat");
-  m_dat.setFileName(fileName);
-  bool open = m_dat.open(QIODevice::Append);
-  if (!open)
-    qWarning() << tr("Ошибка открытия файла") << fileName;
+    QString fileName = QString("%1%2%3%4").arg(m_sourceDataPath).arg(QDir::separator())
+                                          .arg(QString("%1_%2").arg(QDate::currentDate().toString("ddMMyyyy")).arg(d.key()))
+                                          .arg(".dat");
+    d.value()->setFileName(fileName);
+    bool open = d.value()->open(QIODevice::Append);
+    if (!open)
+      qWarning() << tr("Ошибка открытия файла") << fileName;
+
+    d++;
+  }
 }
 
 
@@ -211,13 +403,16 @@ void LocalServer::pgasData(CommandType::Command cmd, const QByteArray& data)
   // Сохраняем данные в файле (название файла строится в соответствии с текущим днём ddMMyyyy)
   if (fromPgas)
   {
-    //! FIXME: в полность создавать новый файл с новым именем
-    if (!m_dat.isOpen())
+    const auto vm = parseData(cmd, data);
+    const int msec = vm["timestamp"].toDateTime().time().msecsSinceStartOfDay();
+    const int stationId = vm["stationId"].toInt();
+
+    if (!m_dataPGAS.contains(stationId) || !m_dataPGAS[stationId]->isOpen())
     {
       qWarning() << tr("Файл не открыт для записи");
       return;
     }
-    QDataStream out(&m_dat);
+    QDataStream out(m_dataPGAS[stationId]);
     out.setVersion(QDataStream::Qt_5_9);
     out << quint16(cmd);
     out << quint32(data.length());

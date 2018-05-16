@@ -7,6 +7,8 @@ class QLocalServer;
 class QLocalSocket;
 #include <QTimer>
 #include <QFile>
+#include <QMap>
+#include <QVariantMap>
 
 // Local
 #include <commandType.h>
@@ -45,6 +47,8 @@ class LocalServer : public QObject
     //! Открытие файла для сохранения данных с сервера
     bool openFile();
 
+    QVariantMap parseData(CommandType::Command cmd, const QByteArray& data) const;
+
   private:
     void init();
 
@@ -56,7 +60,7 @@ class LocalServer : public QObject
     // Таймер для очистки старых данных, в зависимости от параметров, заданных в конфиге
     QTimer m_clearTimer;
 
-    QFile m_dat;
+    QMap<int, QFile*> m_dataPGAS;
 
     WaitState m_waitState;
     CommandType::Command m_command;
