@@ -36,13 +36,17 @@ class MainWindow : public QMainWindow
     void setTrayIconActions();
     void showTrayIcon();
 
+    void setPermission(bool permission);
+
     void on_startButton_clicked();
 
     void on_stopButton_clicked();
 
     void on_exitButton_clicked();
 
-    void on_checkToolButton_clicked();
+    void on_checkNameToolButton_clicked();
+
+    void on_checkDataToolButton_clicked();
 
 private:
     Ui::MainWindow *ui;

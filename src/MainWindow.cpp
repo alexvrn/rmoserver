@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 
   QSettings settings("SAMI_DVO_RAN", "rmo");
   ui->nameEdit->setText(settings.value("rmoServerName").toString());
+  ui->dataLineEdit->setText(settings.value("sourceDataPath").toString());
 
   // Читаем адреса серверов ПГАС
   QList<QPair<QString, int> > pgasServers;
@@ -41,6 +42,18 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
   on_stopButton_clicked();
+}
+
+
+void MainWindow::setPermission(bool permission)
+{
+  ui->nameEdit->setEnabled(permission);
+  ui->checkNameToolButton->setEnabled(permission);
+  ui->dataLineEdit->setEnabled(permission);
+  ui->checkDataToolButton->setEnabled(permission);
+
+  ui->startButton->setEnabled(permission);
+  ui->stopButton->setEnabled(!permission);
 }
 
 
@@ -142,8 +155,7 @@ void MainWindow::on_startButton_clicked()
     return;
   }
 
-  ui->startButton->setEnabled(false);
-  ui->stopButton->setEnabled(true);
+  setPermission(false);
   m_running = true;
 }
 
@@ -153,8 +165,7 @@ void MainWindow::on_stopButton_clicked()
   m_httpServer->close();
   m_localServer->close();
 
-  ui->startButton->setEnabled(true);
-  ui->stopButton->setEnabled(false);
+  setPermission(true);
   m_running = false;
 }
 
@@ -165,7 +176,7 @@ void MainWindow::on_exitButton_clicked()
 }
 
 
-void MainWindow::on_checkToolButton_clicked()
+void MainWindow::on_checkNameToolButton_clicked()
 {
   QString name = ui->nameEdit->text().trimmed();
   if (name.isEmpty())
@@ -176,4 +187,17 @@ void MainWindow::on_checkToolButton_clicked()
 
   QSettings settings("SAMI_DVO_RAN", "rmo");
   settings.setValue("rmoServerName", name);
+}
+
+void MainWindow::on_checkDataToolButton_clicked()
+{
+  QString sourceDataPath = ui->dataLineEdit->text();
+  if (sourceDataPath.isEmpty())
+  {
+    QMessageBox::information(this, tr(""), tr("Введите путь к папке хранения данных"), QMessageBox::Ok);
+    return;
+  }
+
+  QSettings settings("SAMI_DVO_RAN", "rmo");
+  settings.setValue("sourceDataPath", sourceDataPath);
 }
