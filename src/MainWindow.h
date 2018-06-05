@@ -29,7 +29,10 @@ class MainWindow : public QMainWindow
   protected:
     void closeEvent(QCloseEvent *e);
 
-  private slots:
+  public Q_SLOTS:
+    void showMinimized();
+
+  private Q_SLOTS:
     void changeEvent(QEvent* event);
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
     void trayActionExecute();
@@ -48,7 +51,7 @@ class MainWindow : public QMainWindow
 
     void on_checkDataToolButton_clicked();
 
-private:
+  private:
     Ui::MainWindow *ui;
 
     HTTPServer* m_httpServer;

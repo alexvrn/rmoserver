@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
   ui->setupUi(this);
 
+  ui->checkDataToolButton->setIcon(QIcon::fromTheme(QLatin1String("document-save")));
+
   QSettings settings("SAMI_DVO_RAN", "rmo");
   ui->nameEdit->setText(settings.value("rmoServerName", "rmoserver").toString());
   ui->dataLineEdit->setText(settings.value("sourceDataPath",
@@ -79,9 +81,23 @@ void MainWindow::showTrayIcon()
 }
 
 
+void MainWindow::showMinimized()
+{
+  QMainWindow::showMinimized();
+  hide();
+}
+
+
 void MainWindow::trayActionExecute()
 {
-  QMessageBox::information(this, "TrayIcon", "Тестовое сообщение. Замените вызов этого сообщения своим кодом.");
+  if (windowState() == Qt::WindowMinimized)
+  {
+    showNormal();
+  }
+  else
+  {
+    showMinimized();
+  }
 }
 
 
@@ -107,9 +123,9 @@ void MainWindow::setTrayIconActions()
   m_quitAction = new QAction("Выход", this);
 
   // Connecting actions to slots...
-  connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+  connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(showMinimized()));
   connect(m_restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-  connect(m_quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+  connect(m_quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
   // Setting system tray's icon menu...
   m_trayIconMenu = new QMenu(this);
@@ -123,9 +139,12 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
   if (m_running)
   {
+    showNormal();
     if (QMessageBox::question(this, tr(""), tr("Отключить службу?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    {
       e->ignore();
       return;
+    }
   }
 
   e->accept();
@@ -140,6 +159,13 @@ void MainWindow::changeEvent(QEvent *event)
     if (isMinimized())
     {
       hide();
+      m_restoreAction->setEnabled(true);
+      m_minimizeAction->setEnabled(false);
+    }
+    else
+    {
+      m_restoreAction->setEnabled(false);
+      m_minimizeAction->setEnabled(true);
     }
   }
 }
@@ -194,6 +220,7 @@ void MainWindow::on_checkNameToolButton_clicked()
   QSettings settings("SAMI_DVO_RAN", "rmo");
   settings.setValue("rmoServerName", name);
 }
+
 
 void MainWindow::on_checkDataToolButton_clicked()
 {
