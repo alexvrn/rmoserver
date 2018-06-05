@@ -16,8 +16,14 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
 
   QSettings settings("SAMI_DVO_RAN", "rmo");
-  ui->nameEdit->setText(settings.value("rmoServerName").toString());
-  ui->dataLineEdit->setText(settings.value("sourceDataPath").toString());
+  ui->nameEdit->setText(settings.value("rmoServerName", "rmoserver").toString());
+  ui->dataLineEdit->setText(settings.value("sourceDataPath",
+#if defined(Q_OS_LINUX)
+                                           "/tmp/rmoserver"
+#else
+                                           "C:\\tmp\\rmoserver"
+#endif
+                                           ).toString());
 
   // Читаем адреса серверов ПГАС
   QList<QPair<QString, int> > pgasServers;
