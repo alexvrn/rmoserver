@@ -45,6 +45,12 @@ bool HTTPServer::listen(int port)
 }
 
 
+void HTTPServer::close()
+{
+  m_httpServer->close();
+}
+
+
 void HTTPServer::handle(QHttpRequest* request, QHttpResponse* response)
 {
   // Это используется только в протоколе HTTP 1.1

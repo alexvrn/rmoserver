@@ -67,6 +67,7 @@ LocalServer::~LocalServer()
       d->close();
     delete d;
   }
+  close();
 }
 
 
@@ -83,6 +84,15 @@ bool LocalServer::listen(const QString& name)
   }
 
   return true;
+}
+
+
+void LocalServer::close()
+{
+  if (m_localServer->isListening())
+    qDebug() << tr("Служба отключена");
+
+  m_localServer->close();
 }
 
 

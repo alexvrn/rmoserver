@@ -23,6 +23,7 @@ class HTTPServer : public QObject
 
   public slots:
     bool listen(int port);
+    void close();
 
   private slots:
     void timer(); //! FAKE

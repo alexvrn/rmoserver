@@ -1,12 +1,10 @@
-QT += core network
-QT -= gui
+QT += core gui network
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
 TARGET = rmoserver
-CONFIG += console
-CONFIG -= app_bundle
-
 TEMPLATE = app
 
 SOURCES += main.cpp \
@@ -20,7 +18,8 @@ SOURCES += main.cpp \
     qhttpserver/http-parser/http_parser.c \
     riot_os_cbor/cbor.c \
     structs/cmd_data_packer.c \
-    structs/cmd_data_debug.c
+    structs/cmd_data_debug.c \
+    src/MainWindow.cpp
 
 HEADERS += \
     src/Server.h \
@@ -34,7 +33,8 @@ HEADERS += \
     qhttpserver/src/qhttpserverfwd.h \
     riot_os_cbor/cbor.h \
     structs/cmd_data_packer.h \
-    structs/cmd_data_debug.h
+    structs/cmd_data_debug.h \
+    src/MainWindow.h
     src/commandType.h
 
 # The following define makes your compiler emit warnings if you use
@@ -53,3 +53,6 @@ INCLUDEPATH = src/ qhttpserver/src/ qhttpserver/http-parser/ riot_os_cbor/ struc
 #include(cbor-qt/cbor.pri)
 
 #LIBS += -lqhttpserver
+
+FORMS += \
+    src/mainwindow.ui

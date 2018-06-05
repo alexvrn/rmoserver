@@ -1,0 +1,179 @@
+// Local
+#include "MainWindow.h"
+#include "ui_mainwindow.h"
+
+// Qt
+#include <QSettings>
+#include <QCloseEvent>
+
+MainWindow::MainWindow(QWidget *parent)
+  : QMainWindow(parent)
+  , ui(new Ui::MainWindow)
+  , m_httpServer(new HTTPServer(this))
+  , m_localServer(new LocalServer(this))
+  , m_running(false)
+{
+  ui->setupUi(this);
+
+  QSettings settings("SAMI_DVO_RAN", "rmo");
+  ui->nameEdit->setText(settings.value("rmoServerName").toString());
+
+  // Читаем адреса серверов ПГАС
+  QList<QPair<QString, int> > pgasServers;
+  int size = settings.beginReadArray("PGAS");
+  for (int i = 0; i < size; ++i)
+  {
+    settings.setArrayIndex(i);
+    pgasServers.append(qMakePair(settings.value("ip").toString(),
+                                 settings.value("number").toInt()));
+  }
+  settings.endArray();
+
+  QObject::connect(m_httpServer, &HTTPServer::pgasData, m_localServer, &LocalServer::pgasData);
+
+  Server server(pgasServers);
+
+  setTrayIconActions();
+  showTrayIcon();
+}
+
+
+MainWindow::~MainWindow()
+{
+  on_stopButton_clicked();
+}
+
+
+void MainWindow::showTrayIcon()
+{
+  // Создаём экземпляр класса и задаём его свойства...
+  m_trayIcon = new QSystemTrayIcon(this);
+  QIcon trayImage(":/images/abc.png");
+  m_trayIcon->setIcon(trayImage);
+  m_trayIcon->setContextMenu(m_trayIconMenu);
+
+  // Подключаем обработчик клика по иконке...
+  connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
+
+  // Выводим значок...
+  m_trayIcon->show();
+}
+
+
+void MainWindow::trayActionExecute()
+{
+  QMessageBox::information(this, "TrayIcon", "Тестовое сообщение. Замените вызов этого сообщения своим кодом.");
+}
+
+
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+  switch (reason)
+  {
+    case QSystemTrayIcon::Trigger:
+    case QSystemTrayIcon::DoubleClick:
+      trayActionExecute();
+      break;
+    default:
+      break;
+  }
+}
+
+
+void MainWindow::setTrayIconActions()
+{
+  // Setting actions...
+  m_minimizeAction = new QAction("Свернуть", this);
+  m_restoreAction = new QAction("Восстановить", this);
+  m_quitAction = new QAction("Выход", this);
+
+  // Connecting actions to slots...
+  connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+  connect(m_restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+  connect(m_quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+  // Setting system tray's icon menu...
+  m_trayIconMenu = new QMenu(this);
+  m_trayIconMenu->addAction(m_minimizeAction);
+  m_trayIconMenu->addAction(m_restoreAction);
+  m_trayIconMenu->addAction(m_quitAction);
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+  if (m_running)
+  {
+    if (QMessageBox::question(this, tr(""), tr("Отключить службу?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+      e->ignore();
+      return;
+  }
+
+  e->accept();
+}
+
+
+void MainWindow::changeEvent(QEvent *event)
+{
+  QMainWindow::changeEvent(event);
+  if (event->type() == QEvent::WindowStateChange)
+  {
+    if (isMinimized())
+    {
+      hide();
+    }
+  }
+}
+
+void MainWindow::on_startButton_clicked()
+{
+  if (!m_httpServer->listen(2777))
+  {
+    QMessageBox::warning(this, tr("Ошибка"), tr("Ошибка запуска http server-а"), QMessageBox::Ok);
+    on_stopButton_clicked();
+    return;
+  }
+
+  QSettings settings("SAMI_DVO_RAN", "rmo");
+  if (!m_localServer->listen(settings.value("rmoServerName", "rmoserver").toString()))
+  {
+    QMessageBox::warning(this, tr("Ошибка"), tr("Не удаётся запустить сервер"), QMessageBox::Ok);
+    on_stopButton_clicked();
+    return;
+  }
+
+  ui->startButton->setEnabled(false);
+  ui->stopButton->setEnabled(true);
+  m_running = true;
+}
+
+
+void MainWindow::on_stopButton_clicked()
+{
+  m_httpServer->close();
+  m_localServer->close();
+
+  ui->startButton->setEnabled(true);
+  ui->stopButton->setEnabled(false);
+  m_running = false;
+}
+
+
+void MainWindow::on_exitButton_clicked()
+{
+  close();
+}
+
+
+void MainWindow::on_checkToolButton_clicked()
+{
+  QString name = ui->nameEdit->text().trimmed();
+  if (name.isEmpty())
+  {
+    QMessageBox::information(this, tr(""), tr("Введите имя службы"), QMessageBox::Ok);
+    return;
+  }
+
+  QSettings settings("SAMI_DVO_RAN", "rmo");
+  settings.setValue("rmoServerName", name);
+}

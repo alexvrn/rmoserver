@@ -30,6 +30,7 @@ class LocalServer : public QObject
     ~LocalServer();
 
     bool listen(const QString& name);
+    void close();
 
   signals:
 
